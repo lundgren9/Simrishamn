@@ -1,7 +1,7 @@
 # Simrishamn
 Saker relaterade till Simrishamn kommun
-<a href="https://lundgren9.github.io/Simrishamn/1/">Besök sidan för Simrishamn</a>
 
+[Besök sidan för Simrishamn](https://lundgren9.github.io/Simrishamn/1/)
 
 #GitHub
 Metod: Direkt i GitHub (webben) — för en eller ett fåtal kataloger
@@ -12,5 +12,5 @@ Fyll i commit‑meddelande och klicka "Commit new file"
 Upprepa för "2/.gitkeep", osv.
 
 Tomma mappar syns inte i git — använd placeholder-filer (.gitkeep, README.md).
-Kontrollera vilken branch du jobbar på: git branch --show-current. Om ni arbetar i en skyddad branch (main) kan det vara bättre att skapa en feature-branch: git checkout -b add-numbered-folders git push -u origin add-numbered-folders och skapa en PR i GitHub.
+Kontrollera vilken branch du jobbar på: git branch --show-current. Om ni arbetar i en skyddad branch (main) kan det vara bättre att skapa en feature-branch: git checkout -b add-numbered-folders [...]
 Katalognamn bestående av endast siffror är helt okej.
