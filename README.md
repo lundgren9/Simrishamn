@@ -3,6 +3,8 @@ Saker relaterade till Simrishamn kommun
 
 [Besök sidan: Felsökningsrapport: Raindance - den 18 januari 2026](https://lundgren9.github.io/Simrishamn/1/)
 
+[Besök sidan: Avstämning mellan konto 2880 och kto 2881](https://lundgren9.github.io/Simrishamn/2/)
+
 # Hur skapa kataloger i GitHub
 ## GitHub
 Metod: Direkt i GitHub (webben) — för en eller ett fåtal kataloger
