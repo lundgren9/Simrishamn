@@ -391,6 +391,54 @@ git status</code>
             </div>
         </div>
         
+        <!-- ===== UPPDATERING 18 jan 2026: Skapa nya mappar ===== -->
+        <h2>6. Skapa nya mappar (kataloger) i GitHub</h2>
+        
+        <p>Git kan <strong>inte</strong> spåra tomma mappar. Därför måste du alltid skapa en fil i mappen.</p>
+        
+        <h3>Rekommenderat: Skapa mapp med index.html</h3>
+        <div class="command-box">
+            <code><span class="comment"># I GitHub (webben):</span><br>
+<span class="comment"># Klicka "Add file" → "Create new file"</span><br>
+<span class="comment"># Skriv i filnamnsfältet:</span><br>
+3/index.html<br><br>
+<span class="comment"># Detta skapar:</span><br>
+<span class="comment"># - Mappen "3"</span><br>
+<span class="comment"># - Filen "index.html" i mappen</span></code>
+        </div>
+        
+        <h3>Vad är .gitkeep?</h3>
+        <p>Du kanske har sett att vissa skriver <code>3/.gitkeep</code> istället. Här är skillnaden:</p>
+        
+        <table>
+            <tr>
+                <th>Fil</th>
+                <th>Vad det är</th>
+                <th>När använda</th>
+            </tr>
+            <tr>
+                <td><code>index.html</code></td>
+                <td>En riktig HTML-fil som blir en webbsida</td>
+                <td>✅ <strong>Rekommenderas!</strong> Om mappen ska ha en webbsida</td>
+            </tr>
+            <tr>
+                <td><code>.gitkeep</code></td>
+                <td>En tom "dummy-fil" utan innehåll</td>
+                <td>Endast om mappen ska vara tom (ingen webbsida)</td>
+            </tr>
+            <tr>
+                <td><code>README.md</code></td>
+                <td>En dokumentationsfil</td>
+                <td>Om mappen behöver en beskrivning</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>Viktigt att förstå:</strong> <code>.gitkeep</code> är <strong>INTE</strong> en speciell Git-funktion!</p>
+            <p>Det är bara ett påhittat namn som utvecklare använder som "placeholder" för att Git ska kunna spåra mappen. Filen kan heta vad som helst – <code>.gitkeep</code> är bara en konvention.</p>
+            <p><strong>Slutsats:</strong> Använd <code>3/index.html</code> direkt – det är enklare och mer användbart!</p>
+        </div>
+        
         <!-- ===================== FOOTER ===================== -->
         <hr style="border-color: var(--border-color); margin: 2rem 0;">
         <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">

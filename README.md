@@ -17,9 +17,11 @@ Saker relaterade till Simrishamn kommun - utbildningsmaterial och dokumentation.
 
 ### 📖 Dokumentation
 
-| Fil | Beskrivning |
-|-----|-------------|
-| [GitHub.html](GitHub.html) | Guide för Git & GitHub - synkronisering lokalt ↔ remote |
+| Fil | Beskrivning | Länkar |
+|-----|-------------|--------|
+| **GitHub.html** | Guide för Git & GitHub - synkronisering lokalt ↔ remote | [📄 Visa sida](https://lundgren9.github.io/Simrishamn/GitHub.html) · [💻 Källkod](https://github.com/lundgren9/Simrishamn/blob/main/GitHub.html) |
+
+> **Skillnad:** "Visa sida" öppnar den färdiga webbsidan med styling. "Källkod" visar HTML-koden på GitHub.
 
 ---
 
@@ -50,7 +52,7 @@ git commit -m "Beskrivning av ändringarna"
 git push origin main
 ```
 
-> **💡 Tips:** Se [GitHub.html](GitHub.html) för komplett guide om Git-synkronisering!
+> **💡 Tips:** Se [Git-synkroniseringsguiden](https://lundgren9.github.io/Simrishamn/GitHub.html) för komplett guide!
 
 ---
 
@@ -94,22 +96,36 @@ Alla HTML-filer är tillgängliga online via GitHub Pages:
 ### Via GitHub (webben)
 1. Gå till https://github.com/lundgren9/Simrishamn
 2. Klicka **Add file** → **Create new file**
-3. I filnamnsfältet skriv `3/.gitkeep` (skapar katalogen "3" med placeholder-fil)
-4. Fyll i commit-meddelande och klicka **Commit new file**
+3. I filnamnsfältet skriv `3/index.html` (skapar katalogen "3" med en index.html-fil)
+4. Fyll i HTML-innehåll och commit-meddelande
+5. Klicka **Commit new file**
 
 ### Via Git lokalt
 ```powershell
-# Skapa ny mapp med placeholder
+# Skapa ny mapp med index.html
 mkdir 3
-New-Item -Path "3/.gitkeep" -ItemType File
+New-Item -Path "3/index.html" -ItemType File
 
 # Lägg till och committa
 git add .
-git commit -m "Skapar mapp 3"
+git commit -m "Skapar mapp 3 med index.html"
 git push origin main
 ```
 
-> **OBS:** Tomma mappar syns inte i Git - använd alltid placeholder-filer som `.gitkeep` eller `README.md`.
+---
+
+### ❓ Varför inte `.gitkeep`?
+
+Du kanske har sett att man ibland skapar `3/.gitkeep` istället. Här är förklaringen:
+
+| Fil | Vad det är | När använda |
+|-----|------------|-------------|
+| **`index.html`** | En riktig HTML-fil som blir en webbsida | ✅ **Rekommenderas!** Om mappen ska innehålla en webbsida |
+| **`.gitkeep`** | En tom "dummy-fil" utan innehåll | Endast om mappen ska vara tom (ingen webbsida) |
+
+> **Viktigt att veta:** Git kan inte spåra tomma mappar! Därför måste det finnas minst en fil i mappen. `.gitkeep` är bara ett påhittat namn som utvecklare använder som "placeholder" – det är ingen speciell Git-funktion. Du kan lika gärna använda `README.md` eller `index.html`.
+
+**Slutsats:** Använd `3/index.html` direkt – det är enklare och mer användbart!
 
 ---
 
