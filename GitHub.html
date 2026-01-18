@@ -418,6 +418,253 @@ git@github.com: Permission denied (publickey).<br><br>
             <li>Om du använder HTTPS behöver du inte SSH alls (och vice versa)</li>
         </ul>
         
+        <!-- ===== UPPDATERING 18 jan 2026: Byta till SSH - steg för steg ===== -->
+        <h2>1f. Byta från HTTPS till SSH - Komplett guide</h2>
+        
+        <p>När du klonar ett repo på GitHub kan du välja mellan HTTPS och SSH:</p>
+        
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <img src="Klona_genom_https_eller_SSH.jpg" alt="GitHub visar val mellan HTTPS och SSH vid kloning" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;"><em>GitHub visar två alternativ: HTTPS eller SSH</em></p>
+        </div>
+        
+        <h3>Varför byta till SSH? Fördelarna</h3>
+        
+        <table>
+            <tr>
+                <th>Aspekt</th>
+                <th>HTTPS</th>
+                <th>SSH</th>
+            </tr>
+            <tr>
+                <td><strong>Autentisering</strong></td>
+                <td>Användarnamn + token/lösenord</td>
+                <td>SSH-nyckelpar (automatiskt)</td>
+            </tr>
+            <tr>
+                <td><strong>Bekvämlighet</strong></td>
+                <td>Kan kräva inloggning ibland</td>
+                <td>✅ Aldrig lösenord efter setup</td>
+            </tr>
+            <tr>
+                <td><strong>Säkerhet</strong></td>
+                <td>Token kan läcka om sparat i fel fil</td>
+                <td>✅ Privat nyckel lämnar aldrig din dator</td>
+            </tr>
+            <tr>
+                <td><strong>Flera konton</strong></td>
+                <td>Svårt - Credential Manager sparar ett</td>
+                <td>✅ Enkelt med olika nycklar per konto</td>
+            </tr>
+            <tr>
+                <td><strong>Brandväggar</strong></td>
+                <td>✅ Port 443 (nästan alltid öppen)</td>
+                <td>Port 22 (kan vara blockerad)</td>
+            </tr>
+            <tr>
+                <td><strong>Setup-tid</strong></td>
+                <td>✅ Snabbt - fungerar direkt</td>
+                <td>Kräver initial setup (ca 10 min)</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>Rekommendation:</strong> Om du arbetar med GitHub regelbundet och/eller har flera konton är SSH värt den initiala setup-tiden!</p>
+        </div>
+        
+        <h3>Steg-för-steg: Sätta upp SSH för GitHub</h3>
+        
+        <h4>Steg 1: Kontrollera om du redan har SSH-nycklar</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Kolla om det finns befintliga nycklar</span><br>
+ls ~/.ssh</code>
+        </div>
+        
+        <p><strong>Tre möjliga resultat:</strong></p>
+        
+        <table>
+            <tr>
+                <th>Resultat</th>
+                <th>Vad det betyder</th>
+                <th>Vad du ska göra</th>
+            </tr>
+            <tr>
+                <td style="color: var(--accent-green);">Du ser filer som <code>id_ed25519</code>, <code>id_rsa</code></td>
+                <td>✅ Du har redan SSH-nycklar</td>
+                <td>Hoppa till <strong>Steg 4</strong></td>
+            </tr>
+            <tr>
+                <td style="color: var(--accent-orange);">Mappen finns men är tom</td>
+                <td>Mappen existerar men inga nycklar</td>
+                <td>Fortsätt till <strong>Steg 2</strong></td>
+            </tr>
+            <tr>
+                <td style="color: var(--accent-red);">Felmeddelande: "Cannot find path"</td>
+                <td>🆕 Normalt! Mappen finns inte ännu</td>
+                <td>Fortsätt till <strong>Steg 2</strong></td>
+            </tr>
+        </table>
+        
+        <div class="command-box" style="background: #1a1a2e; border-color: var(--accent-red);">
+            <code style="color: var(--accent-red);"><span class="comment"># Om du får detta felmeddelande:</span><br>
+ls : Cannot find path 'C:\Users\kentl\.ssh' because it does not exist.<br><br>
+<span style="color: var(--accent-green);"># ✅ Det är HELT NORMALT!</span><br>
+<span style="color: var(--accent-green);"># Det betyder bara att du aldrig använt SSH förut.</span><br>
+<span style="color: var(--accent-green);"># Mappen skapas automatiskt i nästa steg.</span></code>
+        </div>
+        
+        <div class="tip">
+            <p><strong>🎉 Ingen panik!</strong> Om du fick felmeddelandet ovan är det precis vad som förväntas första gången. Fortsätt till Steg 2!</p>
+        </div>
+        
+        <h4>Steg 2: Skapa ett nytt SSH-nyckelpar</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Skapa en ny SSH-nyckel (ersätt e-postadressen med din)</span><br>
+ssh-keygen -t ed25519 -C "din-email@example.com"<br><br>
+<span class="comment"># Du kommer få frågor:</span><br>
+<span class="comment"># "Enter file in which to save the key" → Tryck Enter (använd default)</span><br>
+<span class="comment"># "Enter passphrase" → Valfritt lösenord (eller Enter för inget)</span><br>
+<span class="comment"># "Enter same passphrase again" → Upprepa</span></code>
+        </div>
+        
+        <div class="tip">
+            <p><strong>Vad skapas?</strong> Två filer i <code>~/.ssh/</code>:</p>
+            <ul>
+                <li><code>id_ed25519</code> - Din <strong>privata</strong> nyckel (DELA ALDRIG!)</li>
+                <li><code>id_ed25519.pub</code> - Din <strong>publika</strong> nyckel (denna ger du till GitHub)</li>
+            </ul>
+        </div>
+        
+        <h4>Steg 3: Starta SSH-agenten</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># I PowerShell, starta SSH-agenten</span><br>
+Start-Service ssh-agent<br><br>
+<span class="comment"># Om du får fel, prova detta först (som Admin):</span><br>
+Set-Service -Name ssh-agent -StartupType Automatic<br>
+Start-Service ssh-agent<br><br>
+<span class="comment"># Lägg till din nyckel i agenten</span><br>
+ssh-add ~/.ssh/id_ed25519</code>
+        </div>
+        
+        <h4>Steg 4: Kopiera din publika nyckel</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Visa din publika nyckel</span><br>
+Get-Content ~/.ssh/id_ed25519.pub<br><br>
+<span class="comment"># Eller kopiera direkt till urklipp</span><br>
+Get-Content ~/.ssh/id_ed25519.pub | Set-Clipboard<br><br>
+<span class="comment"># Nyckeln ser ut ungefär så här:</span><br>
+<span class="comment"># ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... din-email@example.com</span></code>
+        </div>
+        
+        <h4>Steg 5: Lägg till nyckeln på GitHub</h4>
+        
+        <p>Gå till: <a href="https://github.com/settings/ssh/new" target="_blank" style="color: var(--accent-blue);">https://github.com/settings/ssh/new</a></p>
+        
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <img src="add_new_SSH_Key.jpg" alt="GitHub - Lägg till ny SSH-nyckel" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;"><em>GitHub:s sida för att lägga till SSH-nycklar</em></p>
+        </div>
+        
+        <ol>
+            <li>Logga in på GitHub (t.ex. som <code>kentlundgren</code>)</li>
+            <li>Gå till <strong>Settings</strong> → <strong>SSH and GPG keys</strong> → <strong>New SSH key</strong></li>
+            <li><strong>Title:</strong> Ge nyckeln ett namn, t.ex. "Min Windows-dator"</li>
+            <li><strong>Key type:</strong> Låt stå på "Authentication Key"</li>
+            <li><strong>Key:</strong> Klistra in din publika nyckel (från steg 4)</li>
+            <li>Klicka <strong>Add SSH key</strong></li>
+        </ol>
+        
+        <div class="warning">
+            <p><strong>För flera konton (t.ex. kentlundgren OCH lundgren9):</strong></p>
+            <p>Upprepa steg 5 för varje konto! Du kan använda <strong>samma</strong> publika nyckel på båda kontona, eller skapa separata nycklar.</p>
+        </div>
+        
+        <h4>Steg 6: Testa anslutningen</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Testa SSH-anslutning till GitHub</span><br>
+ssh -T git@github.com<br><br>
+<span class="comment"># Första gången: Svara "yes" på fingerprint-frågan</span><br>
+<span class="comment"># Förväntat resultat:</span><br>
+Hi kentlundgren! You've successfully authenticated, but GitHub does not provide shell access.</code>
+        </div>
+        
+        <h4>Steg 7: Byt befintligt repo från HTTPS till SSH</h4>
+        
+        <p>Om du redan har klonat ett repo med HTTPS kan du byta till SSH:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Kolla nuvarande remote</span><br>
+git remote -v<br><br>
+<span class="comment"># Om det står https://github.com/..., byt till SSH:</span><br>
+git remote set-url origin git@github.com:lundgren9/Simrishamn.git<br><br>
+<span class="comment"># Verifiera ändringen</span><br>
+git remote -v<br><br>
+<span class="comment"># Nu ska det stå:</span><br>
+<span class="comment"># origin  git@github.com:lundgren9/Simrishamn.git (fetch)</span><br>
+<span class="comment"># origin  git@github.com:lundgren9/Simrishamn.git (push)</span></code>
+        </div>
+        
+        <h3>Hantera flera GitHub-konton med SSH</h3>
+        
+        <p>Om du har flera konton (t.ex. <code>kentlundgren</code> och <code>lundgren9</code>) och vill använda olika nycklar:</p>
+        
+        <h4>Alternativ A: Samma nyckel på båda kontona (enklast)</h4>
+        <p>Lägg till samma publika nyckel på båda GitHub-kontona. Fungerar utmärkt!</p>
+        
+        <h4>Alternativ B: Separata nycklar (mer kontroll)</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Skapa en andra nyckel för lundgren9</span><br>
+ssh-keygen -t ed25519 -C "lundgren9@example.com" -f ~/.ssh/id_ed25519_lundgren9<br><br>
+<span class="comment"># Skapa/redigera SSH config-fil</span><br>
+notepad ~/.ssh/config</code>
+        </div>
+        
+        <p>Lägg till i <code>~/.ssh/config</code>:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Konto: kentlundgren (default)</span><br>
+Host github.com<br>
+  HostName github.com<br>
+  User git<br>
+  IdentityFile ~/.ssh/id_ed25519<br>
+<br>
+<span class="comment"># Konto: lundgren9</span><br>
+Host github-lundgren9<br>
+  HostName github.com<br>
+  User git<br>
+  IdentityFile ~/.ssh/id_ed25519_lundgren9</code>
+        </div>
+        
+        <p>Sedan använder du olika "hosts" för olika konton:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># För kentlundgren-repos:</span><br>
+git clone git@github.com:kentlundgren/repo.git<br><br>
+<span class="comment"># För lundgren9-repos:</span><br>
+git clone git@github-lundgren9:lundgren9/Simrishamn.git</code>
+        </div>
+        
+        <h3>Sammanfattning: SSH Setup Checklista</h3>
+        
+        <div class="workflow">
+            <div class="workflow-title">✅ Checklista för SSH-setup</div>
+            <ol>
+                <li>☐ Skapa SSH-nyckel: <code>ssh-keygen -t ed25519 -C "email"</code></li>
+                <li>☐ Starta SSH-agent: <code>Start-Service ssh-agent</code></li>
+                <li>☐ Lägg till nyckel: <code>ssh-add ~/.ssh/id_ed25519</code></li>
+                <li>☐ Kopiera publik nyckel: <code>Get-Content ~/.ssh/id_ed25519.pub</code></li>
+                <li>☐ Lägg till på GitHub: <a href="https://github.com/settings/ssh/new" style="color: var(--accent-blue);">github.com/settings/ssh/new</a></li>
+                <li>☐ Testa: <code>ssh -T git@github.com</code></li>
+                <li>☐ Byt repo till SSH: <code>git remote set-url origin git@github.com:user/repo.git</code></li>
+            </ol>
+        </div>
+        
         <h3>GitHub:s officiella SSH-fingerprints</h3>
         <p>Dessa är de korrekta fingeravtrycken från GitHub (januari 2026):</p>
         
