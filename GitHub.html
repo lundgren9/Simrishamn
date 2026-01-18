@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git & GitHub - Synkroniseringsguide</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --border-color: #30363d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--accent-green);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        
+        h2 {
+            color: var(--accent-green);
+            margin: 2rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+        
+        h3 {
+            color: var(--accent-orange);
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .command-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .command-box code {
+            color: var(--accent-blue);
+            font-size: 0.95rem;
+        }
+        
+        .command-box .comment {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .workflow {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-green);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .workflow-title {
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        ol, ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .warning {
+            background: rgba(248, 81, 73, 0.1);
+            border-left: 4px solid var(--accent-red);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .tip {
+            background: rgba(88, 166, 255, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .arrow {
+            text-align: center;
+            color: var(--accent-green);
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        th {
+            background: var(--bg-secondary);
+            color: var(--accent-blue);
+        }
+        
+        td {
+            color: var(--text-secondary);
+        }
+        
+        td code {
+            color: var(--accent-orange);
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Git & GitHub - Synkroniseringsguide</h1>
+        
+        <p>Denna guide beskriver hur du synkroniserar ett lokalt Git-repository med ett remote repository på GitHub.</p>
+        
+        <!-- ===================== KLONA ETT REPO ===================== -->
+        <h2>1. Klona ett remote repository</h2>
+        <p>För att hämta ett befintligt repo från GitHub till din lokala dator:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Navigera till önskad mapp först</span><br>
+cd "D:\Din\Önskade\Mapp"<br><br>
+<span class="comment"># Klona repot (skapar en undermapp med reponamnet)</span><br>
+git clone https://github.com/användarnamn/repo-namn.git</code>
+        </div>
+        
+        <!-- ===== UPPDATERING 18 jan 2026: Klona utan extra mapp ===== -->
+        <h3>Undvik att skapa extra mapp vid kloning</h3>
+        <p>När du kör <code>git clone [url]</code> skapas automatiskt en ny mapp med reponamnet. 
+           För att klona <strong>direkt till nuvarande mapp</strong> utan att skapa en undermapp:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Lägg till en punkt (.) i slutet för att klona till NUVARANDE mapp</span><br>
+git clone https://github.com/användarnamn/repo-namn.git .</code>
+        </div>
+        
+        <div class="warning">
+            <p><strong>OBS!</strong> Mappen måste vara <strong>tom</strong> för att detta ska fungera!</p>
+            <p>Om mappen innehåller filer får du felmeddelandet: <code>fatal: destination path '.' already exists and is not an empty directory.</code></p>
+        </div>
+        
+        <h3>Alternativ: Klona till befintlig mapp med filer</h3>
+        <p>Om du redan har filer i mappen kan du istället initiera git och koppla till remote:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># 1. Initiera git i nuvarande mapp</span><br>
+git init<br><br>
+<span class="comment"># 2. Lägg till remote repository</span><br>
+git remote add origin https://github.com/användarnamn/repo-namn.git<br><br>
+<span class="comment"># 3. Hämta innehållet från remote</span><br>
+git fetch origin<br><br>
+<span class="comment"># 4. Koppla din lokala main-branch till remote</span><br>
+git checkout -b main origin/main<br><br>
+<span class="comment"># OBS: Lokala filer som inte finns i repot behålls men är "untracked"</span></code>
+        </div>
+        
+        <!-- ===== UPPDATERING 18 jan 2026: Kontrollera GitHub-konto ===== -->
+        <h2>1b. Kontrollera vilket GitHub-konto du är autentiserad mot</h2>
+        <p>Om du har flera GitHub-konton är det viktigt att veta vilket konto Git använder:</p>
+        
+        <h3>Visa konfigurerad användare</h3>
+        <div class="command-box">
+            <code><span class="comment"># Visa globalt konfigurerat användarnamn och e-post</span><br>
+git config --global user.name<br>
+git config --global user.email<br><br>
+<span class="comment"># Visa lokalt konfigurerat (för aktuellt repo)</span><br>
+git config user.name<br>
+git config user.email</code>
+        </div>
+        
+        <h3>Visa lagrade credentials (inloggningsuppgifter)</h3>
+        <div class="command-box">
+            <code><span class="comment"># Windows: Öppna Credential Manager</span><br>
+<span class="comment"># Sök efter "Credential Manager" i Start-menyn</span><br>
+<span class="comment"># Gå till "Windows Credentials" → leta efter "git:https://github.com"</span><br><br>
+<span class="comment"># Eller via kommandorad (visar vilka credentials som finns):</span><br>
+cmdkey /list | findstr github</code>
+        </div>
+        
+        <h3>Testa autentisering mot GitHub</h3>
+        <div class="command-box">
+            <code><span class="comment"># Detta visar vilket konto du är autentiserad som</span><br>
+ssh -T git@github.com<br><br>
+<span class="comment"># För HTTPS: försök pusha/pulla - då ser du vilket konto som används</span><br>
+<span class="comment"># eller kör:</span><br>
+gh auth status<br>
+<span class="comment"># (kräver GitHub CLI installerat)</span></code>
+        </div>
+        
+        <div class="tip">
+            <p><strong>Tips:</strong> Om du har flera konton kan du sätta olika användare per repo:</p>
+            <div class="command-box">
+                <code><span class="comment"># Sätt användare för endast detta repo (utan --global)</span><br>
+git config user.name "lundgren9"<br>
+git config user.email "din-email@example.com"</code>
+            </div>
+        </div>
+        
+        <!-- ===================== VANLIGT ARBETSFLÖDE ===================== -->
+        <h2>2. Vanligt arbetsflöde (dagligt arbete)</h2>
+        
+        <div class="workflow">
+            <div class="workflow-title">📥 Hämta senaste ändringarna från GitHub</div>
+            <div class="command-box">
+                <code>git pull origin main</code>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <div class="workflow">
+            <div class="workflow-title">✏️ Gör dina ändringar i filerna</div>
+            <p style="color: var(--text-secondary); margin: 0;">Redigera, skapa eller ta bort filer som vanligt</p>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <div class="workflow">
+            <div class="workflow-title">📋 Kontrollera status</div>
+            <div class="command-box">
+                <code>git status</code>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <div class="workflow">
+            <div class="workflow-title">➕ Lägg till ändringar för commit</div>
+            <div class="command-box">
+                <code><span class="comment"># Lägg till alla ändringar</span><br>
+git add .<br><br>
+<span class="comment"># ELLER lägg till specifik fil</span><br>
+git add filnamn.txt</code>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <div class="workflow">
+            <div class="workflow-title">💾 Skapa en commit (spara lokalt)</div>
+            <div class="command-box">
+                <code>git commit -m "Beskrivning av ändringarna"</code>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <div class="workflow">
+            <div class="workflow-title">📤 Skicka till GitHub</div>
+            <div class="command-box">
+                <code>git push origin main</code>
+            </div>
+        </div>
+        
+        <!-- ===================== VIKTIGA KOMMANDON ===================== -->
+        <h2>3. Viktiga kommandon - Sammanfattning</h2>
+        
+        <table>
+            <tr>
+                <th>Kommando</th>
+                <th>Beskrivning</th>
+            </tr>
+            <tr>
+                <td><code>git clone [url]</code></td>
+                <td>Klona ett remote repo till lokalt</td>
+            </tr>
+            <tr>
+                <td><code>git pull</code></td>
+                <td>Hämta och slå ihop ändringar från remote</td>
+            </tr>
+            <tr>
+                <td><code>git fetch</code></td>
+                <td>Hämta ändringar utan att slå ihop</td>
+            </tr>
+            <tr>
+                <td><code>git status</code></td>
+                <td>Visa status för arbetskatalogen</td>
+            </tr>
+            <tr>
+                <td><code>git add .</code></td>
+                <td>Stagea alla ändringar</td>
+            </tr>
+            <tr>
+                <td><code>git commit -m "msg"</code></td>
+                <td>Skapa commit med meddelande</td>
+            </tr>
+            <tr>
+                <td><code>git push</code></td>
+                <td>Skicka commits till remote</td>
+            </tr>
+            <tr>
+                <td><code>git log --oneline</code></td>
+                <td>Visa commit-historik</td>
+            </tr>
+            <tr>
+                <td><code>git remote -v</code></td>
+                <td>Visa kopplade remote repositories</td>
+            </tr>
+        </table>
+        
+        <!-- ===================== VANLIGA PROBLEM ===================== -->
+        <h2>4. Vanliga problem och lösningar</h2>
+        
+        <h3>Konflikt vid pull</h3>
+        <div class="warning">
+            <p><strong>Problem:</strong> Du får felmeddelande om konflikter när du kör <code>git pull</code></p>
+            <p><strong>Lösning:</strong></p>
+            <ol>
+                <li>Öppna filerna med konflikter</li>
+                <li>Redigera och ta bort konfliktmarkeringarna (<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>)</li>
+                <li>Spara filerna</li>
+                <li>Kör <code>git add .</code> och sedan <code>git commit -m "Löste konflikter"</code></li>
+            </ol>
+        </div>
+        
+        <h3>Push nekas</h3>
+        <div class="warning">
+            <p><strong>Problem:</strong> <code>git push</code> nekas för att remote har ändringar</p>
+            <p><strong>Lösning:</strong></p>
+            <div class="command-box">
+                <code><span class="comment"># Hämta och slå ihop först</span><br>
+git pull origin main<br><br>
+<span class="comment"># Sedan pusha igen</span><br>
+git push origin main</code>
+            </div>
+        </div>
+        
+        <!-- ===================== TIPS ===================== -->
+        <h2>5. Tips för PowerShell-användare</h2>
+        
+        <div class="tip">
+            <p><strong>Viktigt:</strong> I PowerShell fungerar <strong>inte</strong> <code>&&</code> för att kedja kommandon!</p>
+            <p>Kör istället kommandona ett i taget:</p>
+            <div class="command-box">
+                <code><span class="comment"># FEL - fungerar inte i PowerShell:</span><br>
+cd mapp && git status<br><br>
+<span class="comment"># RÄTT - kör separat:</span><br>
+cd mapp<br>
+git status</code>
+            </div>
+        </div>
+        
+        <!-- ===================== FOOTER ===================== -->
+        <hr style="border-color: var(--border-color); margin: 2rem 0;">
+        <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+            Senast uppdaterad: 18 januari 2026<br>
+            Repository: <a href="https://github.com/lundgren9/Simrishamn" style="color: var(--accent-blue);">github.com/lundgren9/Simrishamn</a>
+        </p>
+    </div>
+</body>
+</html>
