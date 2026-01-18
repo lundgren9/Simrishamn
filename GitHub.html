@@ -665,6 +665,153 @@ git clone git@github-lundgren9:lundgren9/Simrishamn.git</code>
             </ol>
         </div>
         
+        <!-- ===== UPPDATERING 18 jan 2026: Cursor och SSH - begreppsförvirring ===== -->
+        <h2>1g. Cursor och SSH - Viktigt att förstå!</h2>
+        
+        <div class="warning">
+            <p><strong>⚠️ Begreppsförvirring!</strong> Det finns <strong>två helt olika saker</strong> som båda kallas "SSH":</p>
+            <ol>
+                <li><strong>SSH för GitHub</strong> – Autentiseringsmetod för <code>git push/pull</code></li>
+                <li><strong>"Connect via SSH" i Cursor</strong> – Anslut till en <em>fjärrdator</em> för att redigera kod där</li>
+            </ol>
+            <p>Dessa är <strong>INTE</strong> samma sak!</p>
+        </div>
+        
+        <h3>Vad är "Connect via SSH" i Cursor?</h3>
+        
+        <p>När du öppnar Cursor ser du tre alternativ på startsidan:</p>
+        
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <img src="Connect_via_SSH.jpg" alt="Cursor startsida med Connect via SSH" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;"><em>Cursors startsida: "Open project", "Clone repo", och "Connect via SSH"</em></p>
+        </div>
+        
+        <table>
+            <tr>
+                <th>Knapp</th>
+                <th>Vad den gör</th>
+            </tr>
+            <tr>
+                <td><strong>Open project</strong></td>
+                <td>Öppna en mapp på din <em>lokala dator</em></td>
+            </tr>
+            <tr>
+                <td><strong>Clone repo</strong></td>
+                <td>Klona ett Git-repo (från GitHub etc.)</td>
+            </tr>
+            <tr>
+                <td><strong>Connect via SSH</strong></td>
+                <td>Anslut till en <em>annan dator</em> (t.ex. en Linux-server) och redigera filer där</td>
+            </tr>
+        </table>
+        
+        <h3>Marketplace-tillägg för fjärranslutning</h3>
+        
+        <p>Om du klickar på "Connect via SSH" visar Cursor dessa tillägg:</p>
+        
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <img src="connect_via_SSH_Marketplace.jpg" alt="Cursor Marketplace SSH-tillägg" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;"><em>Marketplace: Tillägg för fjärranslutning</em></p>
+        </div>
+        
+        <h4>Förklaring av tilläggen</h4>
+        
+        <table>
+            <tr>
+                <th>Tillägg</th>
+                <th>Vad det gör</th>
+                <th>Behövs för GitHub SSH?</th>
+            </tr>
+            <tr>
+                <td><strong>Remote - SSH</strong><br><span style="font-size: 0.8rem; color: var(--text-secondary);">(6.2M nedladdningar)</span></td>
+                <td>Redigera filer på en <em>fjärrdator</em> (t.ex. en Linux-server på jobbet eller i molnet) direkt i Cursor via SSH</td>
+                <td style="color: var(--accent-red);"><strong>❌ NEJ</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Dev Containers</strong><br><span style="font-size: 0.8rem; color: var(--text-secondary);">(4.3M nedladdningar)</span></td>
+                <td>Utveckla inuti Docker-containers – skapar isolerade utvecklingsmiljöer</td>
+                <td style="color: var(--accent-red);"><strong>❌ NEJ</strong></td>
+            </tr>
+            <tr>
+                <td><strong>WSL</strong><br><span style="font-size: 0.8rem; color: var(--text-secondary);">(2.5M nedladdningar)</span></td>
+                <td>Öppna mappar i Windows Subsystem for Linux – en Linux-miljö på din Windows-dator</td>
+                <td style="color: var(--accent-orange);"><strong>⚠️ Endast om du använder WSL</strong></td>
+            </tr>
+        </table>
+        
+        <h3>Behöver du dessa tillägg?</h3>
+        
+        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <p style="text-align: center; margin-bottom: 1rem;"><strong>Enkel guide: Vad behöver DU?</strong></p>
+            <table>
+                <tr>
+                    <th>Om du vill...</th>
+                    <th>Behöver du tilläggen?</th>
+                </tr>
+                <tr>
+                    <td>Använda SSH-nycklar för <code>git push</code> till GitHub</td>
+                    <td style="color: var(--accent-green);"><strong>❌ NEJ!</strong> Det hanteras av Git, inte Cursor</td>
+                </tr>
+                <tr>
+                    <td>Redigera kod på din lokala Windows-dator</td>
+                    <td style="color: var(--accent-green);"><strong>❌ NEJ!</strong> Använd "Open project"</td>
+                </tr>
+                <tr>
+                    <td>Redigera kod på en fjärrserver (Linux-server)</td>
+                    <td style="color: var(--accent-blue);"><strong>✅ JA</strong> – Installera "Remote - SSH"</td>
+                </tr>
+                <tr>
+                    <td>Utveckla i Docker-containers</td>
+                    <td style="color: var(--accent-blue);"><strong>✅ JA</strong> – Installera "Dev Containers"</td>
+                </tr>
+                <tr>
+                    <td>Arbeta med filer i WSL (Linux på Windows)</td>
+                    <td style="color: var(--accent-blue);"><strong>✅ JA</strong> – Installera "WSL"</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="tip">
+            <p><strong>🎯 Sammanfattning för de flesta användare:</strong></p>
+            <p>Om du bara vill:</p>
+            <ul>
+                <li>✅ Arbeta med Git/GitHub på din lokala dator</li>
+                <li>✅ Använda SSH-nycklar för GitHub-autentisering</li>
+                <li>✅ Pusha och pulla kod till/från GitHub</li>
+            </ul>
+            <p><strong>→ Du behöver INTE installera något av dessa tillägg!</strong></p>
+            <p>SSH-nycklar för GitHub hanteras av Git (kommandoraden), inte av Cursor. Följ instruktionerna i sektion 1f ovan istället.</p>
+        </div>
+        
+        <h3>När ÄR tilläggen användbara?</h3>
+        
+        <div class="workflow">
+            <div class="workflow-title">🖥️ Remote - SSH: Användningsfall</div>
+            <ul>
+                <li>Du har en Linux-server på jobbet eller i molnet (AWS, Azure, etc.)</li>
+                <li>Du vill redigera kod direkt på servern utan att kopiera filer fram och tillbaka</li>
+                <li>Du vill använda Cursors alla funktioner (AI, autocomplete) på fjärrfiler</li>
+            </ul>
+        </div>
+        
+        <div class="workflow">
+            <div class="workflow-title">🐳 Dev Containers: Användningsfall</div>
+            <ul>
+                <li>Du vill ha en isolerad utvecklingsmiljö som inte påverkar din huvuddator</li>
+                <li>Du arbetar i team och vill att alla har exakt samma miljö</li>
+                <li>Du behöver specifika verktyg/versioner som är svåra att installera på Windows</li>
+            </ul>
+        </div>
+        
+        <div class="workflow">
+            <div class="workflow-title">🐧 WSL: Användningsfall</div>
+            <ul>
+                <li>Du har installerat WSL (Windows Subsystem for Linux) på din dator</li>
+                <li>Du vill redigera filer som ligger i Linux-filsystemet (<code>\\wsl$\...</code>)</li>
+                <li>Du kör Node.js, Python eller andra verktyg i WSL</li>
+            </ul>
+        </div>
+        
         <h3>GitHub:s officiella SSH-fingerprints</h3>
         <p>Dessa är de korrekta fingeravtrycken från GitHub (januari 2026):</p>
         
