@@ -1,1 +1,1357 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <!-- 
+    ============================================================
+    AVSTÄMNING AV BALANSKONTON 2880 OCH 2881
+    ============================================================
+    Skapad: 2025
+    Syfte: Pedagogisk förklaring av varför en sen kassarapport 
+           inte behöver bokas om till föregående år när 
+           avstämningen redan är i balans.
+    
+    Målgrupper:
+    - Version 1: Icke-ekonomer (enklare språk, analogier)
+    - Version 2: Ekonomer (teknisk terminologi)
+    
+    Tekniker som används:
+    - HTML5 semantiska element
+    - CSS3 med variabler, flexbox, grid
+    - Vanilla JavaScript för interaktivitet
+    - Modal för SIE/API-förklaring
+    ============================================================
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avstämning av balanskonton - Varför ombokning är onödig</title>
+    
+    <!-- 
+    Google Fonts: 
+    - Source Serif 4: Professionell serif för rubriker
+    - Source Sans 3: Lättläst sans-serif för brödtext
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 
+        ============================================================
+        CSS-VARIABLER
+        Definierar färgschema och typografi på ett ställe
+        för enkel underhåll och konsekvent design
+        ============================================================
+        */
+        :root {
+            /* Primära färger - professionell blågrå ton */
+            --color-primary: #2c3e50;
+            --color-primary-light: #34495e;
+            --color-primary-dark: #1a252f;
+            
+            /* Accentfärger för konton */
+            --color-konto-2880: #27ae60;  /* Grön för dagrapporter */
+            --color-konto-2881: #3498db;  /* Blå för kassarapporter */
+            --color-warning: #e67e22;      /* Orange för varningar */
+            --color-success: #27ae60;      /* Grön för korrekt */
+            --color-error: #c0392b;        /* Röd för fel/onödigt */
+            
+            /* Bakgrundsfärger */
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --bg-code: #ecf0f1;
+            
+            /* Textfärger */
+            --text-primary: #2c3e50;
+            --text-secondary: #5d6d7e;
+            --text-light: #ffffff;
+            
+            /* Typografi */
+            --font-heading: 'Source Serif 4', Georgia, serif;
+            --font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
+            
+            /* Skuggor och rundning */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            
+            /* Övergångar */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+        }
 
+        /* 
+        ============================================================
+        GRUNDLÄGGANDE RESET OCH BASTYPER
+        Nollställer webbläsarens standardstilar
+        ============================================================
+        */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-main);
+            /* Subtil bakgrundstextur för djup */
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(52, 73, 94, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(39, 174, 96, 0.03) 0%, transparent 50%);
+        }
+
+        /* 
+        ============================================================
+        HEADER
+        Fast header med titel och navigering
+        ============================================================
+        */
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--text-light);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Dekorativ bakgrundseffekt i headern */
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        header h1 {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        /* 
+        ============================================================
+        HUVUDCONTAINER
+        Centrerar innehållet och sätter maxbredd
+        ============================================================
+        */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 
+        ============================================================
+        FLIKNAVIGERING
+        Knappar för att växla mellan versioner
+        ============================================================
+        */
+        .tab-container {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            background: transparent;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Emoji-ikon före texten */
+        .tab-button::before {
+            font-size: 1.3rem;
+        }
+
+        .tab-button:first-child::before {
+            content: '👥';
+        }
+
+        .tab-button:last-child::before {
+            content: '📊';
+        }
+
+        .tab-button:hover {
+            background: var(--bg-code);
+            color: var(--text-primary);
+        }
+
+        /* Aktiv flik */
+        .tab-button.active {
+            background: var(--color-primary);
+            color: var(--text-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 
+        ============================================================
+        INNEHÅLLSKORT
+        Huvudcontainer för varje version
+        ============================================================
+        */
+        .content-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            /* Dold som standard - visas med JavaScript */
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .content-card.active {
+            display: block;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 
+        ============================================================
+        TYPOGRAFI
+        Rubriker, stycken, listor
+        ============================================================
+        */
+        h2 {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--color-primary);
+            display: inline-block;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            color: var(--color-primary-light);
+            margin: 2rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* 
+        ============================================================
+        VISUALISERING AV KONTON
+        Boxar som visar konto 2880 och 2881
+        ============================================================
+        */
+        .konto-visualization {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-code);
+            border-radius: var(--radius-md);
+        }
+
+        .konto-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-normal);
+        }
+
+        .konto-box:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .konto-2880 {
+            background: linear-gradient(135deg, var(--color-konto-2880) 0%, #1e8449 100%);
+            color: var(--text-light);
+        }
+
+        .konto-2881 {
+            background: linear-gradient(135deg, var(--color-konto-2881) 0%, #2874a6 100%);
+            color: var(--text-light);
+        }
+
+        .konto-box .konto-nummer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-heading);
+        }
+
+        .konto-box .konto-namn {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        .konto-box .konto-belopp {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Balanssymbol mellan kontona */
+        .balance-symbol {
+            font-size: 2.5rem;
+            color: var(--color-success);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 
+        ============================================================
+        INFORMATIONSRUTOR
+        Färgkodade rutor för olika typer av information
+        ============================================================
+        */
+        .info-box {
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-sm);
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .info-box.success {
+            background: rgba(39, 174, 96, 0.1);
+            border-color: var(--color-success);
+        }
+
+        .info-box.warning {
+            background: rgba(230, 126, 34, 0.1);
+            border-color: var(--color-warning);
+        }
+
+        .info-box.error {
+            background: rgba(192, 57, 43, 0.1);
+            border-color: var(--color-error);
+        }
+
+        .info-box.info {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--color-konto-2881);
+        }
+
+        .info-box-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 
+        ============================================================
+        SCENARIOBOXAR
+        Visar "om vi gör X" vs "om vi gör Y"
+        ============================================================
+        */
+        .scenario-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 700px) {
+            .scenario-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scenario-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 2px solid;
+        }
+
+        .scenario-box.bad {
+            border-color: var(--color-error);
+            background: rgba(192, 57, 43, 0.05);
+        }
+
+        .scenario-box.good {
+            border-color: var(--color-success);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .scenario-box h4 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .scenario-box.bad h4 {
+            color: var(--color-error);
+        }
+
+        .scenario-box.good h4 {
+            color: var(--color-success);
+        }
+
+        .scenario-box ol {
+            margin-left: 1.25rem;
+        }
+
+        .scenario-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* 
+        ============================================================
+        SLUTSATSRUTA
+        Sammanfattande slutsats med tydlig visuell markering
+        ============================================================
+        */
+        .conclusion-box {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--text-light);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            margin-top: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .conclusion-box h3 {
+            color: var(--text-light);
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .conclusion-box p {
+            margin-bottom: 0;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* 
+        ============================================================
+        KNAPP FÖR MODAL
+        Öppnar teknisk förklaring om SIE/API
+        ============================================================
+        */
+        .modal-trigger-container {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--bg-code);
+        }
+
+        .modal-trigger-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--color-warning) 0%, #d35400 100%);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-normal);
+        }
+
+        .modal-trigger-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-trigger-btn::before {
+            content: '🔄';
+            font-size: 1.3rem;
+        }
+
+        /* 
+        ============================================================
+        MODAL
+        Popup-fönster med teknisk förklaring
+        ============================================================
+        */
+        .modal-overlay {
+            /* Täcker hela skärmen */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            /* Centrerar modalinnehållet */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            /* Dold som standard */
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-normal);
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            transition: var(--transition-normal);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--color-warning) 0%, #d35400 100%);
+            color: var(--text-light);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .modal-header h2 {
+            color: var(--text-light);
+            border: none;
+            margin: 0;
+            padding: 0;
+            font-size: 1.4rem;
+        }
+
+        .modal-close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--text-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* 
+        ============================================================
+        JÄMFÖRELSETABELL I MODAL
+        Visar SIE vs API sida vid sida
+        ============================================================
+        */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 600px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-card {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 2px solid;
+        }
+
+        .comparison-card.old {
+            border-color: var(--text-secondary);
+            background: rgba(93, 109, 126, 0.05);
+        }
+
+        .comparison-card.new {
+            border-color: var(--color-success);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .comparison-card h4 {
+            font-family: var(--font-heading);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comparison-card.old h4 {
+            color: var(--text-secondary);
+        }
+
+        .comparison-card.new h4 {
+            color: var(--color-success);
+        }
+
+        .comparison-card ul {
+            list-style: none;
+        }
+
+        .comparison-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .comparison-card li::before {
+            position: absolute;
+            left: 0;
+        }
+
+        .comparison-card.old li::before {
+            content: '⚠️';
+        }
+
+        .comparison-card.new li::before {
+            content: '✓';
+            color: var(--color-success);
+            font-weight: bold;
+        }
+
+        /* 
+        ============================================================
+        PROCESSFLÖDE I MODAL
+        Visar steg-för-steg hur överföring fungerar
+        ============================================================
+        */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-code);
+            border-radius: var(--radius-md);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .process-step {
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .process-step .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .process-step .label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .process-arrow {
+            font-size: 1.5rem;
+            color: var(--color-warning);
+        }
+
+        /* 
+        ============================================================
+        FOOTER
+        Enkel sidfot med kontaktinfo
+        ============================================================
+        */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 
+        ============================================================
+        RESPONSIV DESIGN
+        Anpassningar för mindre skärmar
+        ============================================================
+        */
+        @media (max-width: 600px) {
+            body {
+                font-size: 16px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .konto-visualization {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .balance-symbol {
+                transform: rotate(90deg);
+            }
+
+            .tab-button {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+    ============================================================
+    HEADER
+    Titel och undertitel för sidan
+    ============================================================
+    -->
+    <header>
+        <h1>Avstämning av balanskonton</h1>
+        <p>Varför en sen kassarapport inte behöver bokas om</p>
+    </header>
+
+    <!-- 
+    ============================================================
+    HUVUDINNEHÅLL
+    Innehåller fliknavigering och båda versionerna
+    ============================================================
+    -->
+    <main>
+        <!-- 
+        FLIKNAVIGERING
+        Två knappar för att växla mellan versioner
+        -->
+        <div class="tab-container">
+            <button class="tab-button active" data-tab="icke-ekonom">
+                Version för alla
+            </button>
+            <button class="tab-button" data-tab="ekonom">
+                Version för ekonomer
+            </button>
+        </div>
+
+        <!-- 
+        ============================================================
+        VERSION 1: FÖR ICKE-EKONOMER
+        Enklare språk med vardagliga analogier
+        ============================================================
+        -->
+        <article class="content-card active" id="icke-ekonom">
+            <h2>Förenklad förklaring</h2>
+            
+            <p>
+                I kommunens ekonomisystem håller vi koll på pengar som kommer in på badet 
+                genom två "räknare" – tänk dig dem som två checklistor som måste stämma överens.
+            </p>
+
+            <h3>Vad är konto 2880 och 2881?</h3>
+            
+            <p>
+                <strong>Konto 2880</strong> registrerar dagrapporter – det är som en kvittens 
+                på vad kassan <em>borde</em> innehålla baserat på försäljningen.
+            </p>
+            
+            <p>
+                <strong>Konto 2881</strong> registrerar kassarapporter – det är vad som 
+                <em>faktiskt</em> räknades i kassan.
+            </p>
+            
+            <p>
+                När dessa två stämmer överens vet vi att allt är i sin ordning!
+            </p>
+
+            <!-- Visualisering av kontona -->
+            <div class="konto-visualization">
+                <div class="konto-box konto-2880">
+                    <div class="konto-nummer">2880</div>
+                    <div class="konto-namn">Dagrapporter</div>
+                    <div class="konto-belopp">Kredit: 1 739 608,33 kr</div>
+                </div>
+                
+                <div class="balance-symbol">⚖️</div>
+                
+                <div class="konto-box konto-2881">
+                    <div class="konto-nummer">2881</div>
+                    <div class="konto-namn">Kassarapporter</div>
+                    <div class="konto-belopp">Debet: 1 739 608,33 kr</div>
+                </div>
+            </div>
+
+            <!-- Informationsruta om nuläget -->
+            <div class="info-box success">
+                <div class="info-box-title">✅ Nuläge vid årsskiftet 2025/2026</div>
+                <p>
+                    Kontona är redan avstämda och i balans per den 31 december 2025. 
+                    En liten justering på cirka 1 000 kr har gjorts för att få dem att stämma.
+                </p>
+            </div>
+
+            <h3>Vad händer med den sena kassarapporten?</h3>
+            
+            <p>
+                Efter att avstämningen var klar dök det upp en kassarapport som inte 
+                kommit in i tid. Den bokförs nu på januari 2026.
+            </p>
+
+            <!-- Informationsruta om problemet -->
+            <div class="info-box warning">
+                <div class="info-box-title">🤔 Frågan är: Ska vi boka om den till 2025?</div>
+                <p>
+                    Eftersom rapporten egentligen avser 2025, kan man tycka att den borde 
+                    bokföras där. Men låt oss se vad som händer...
+                </p>
+            </div>
+
+            <!-- Scenariojämförelse -->
+            <div class="scenario-container">
+                <div class="scenario-box bad">
+                    <h4>❌ Om vi bokar om till 2025</h4>
+                    <ol>
+                        <li>Vi lägger till kassarapporten i 2025</li>
+                        <li>Nu blir konto 2881 högre än 2880</li>
+                        <li>Vi måste göra en "motbokning" för att få balans igen</li>
+                        <li>I 2026 måste vi sedan ta bort motbokningen</li>
+                        <li>Slutresultat: Samma som om vi inte gjort något!</li>
+                    </ol>
+                </div>
+                
+                <div class="scenario-box good">
+                    <h4>✅ Om vi låter den ligga i 2026</h4>
+                    <ol>
+                        <li>2025 förblir avstämt och i balans</li>
+                        <li>2026 börjar med kassarapporten</li>
+                        <li>Ingen extra administration behövs</li>
+                        <li>Slutresultat: Samma – men enklare!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Slutsats -->
+            <div class="conclusion-box">
+                <h3>💡 Slutsats</h3>
+                <p>
+                    Eftersom kontona redan är i balans finns det ingen praktisk nytta att 
+                    boka om den sena kassarapporten. Det skulle bara skapa extra arbete 
+                    utan att förändra slutresultatet.
+                </p>
+            </div>
+
+            <!-- Knapp för att öppna modal -->
+            <div class="modal-trigger-container">
+                <button class="modal-trigger-btn" id="open-modal-btn-1">
+                    Läs mer: Hur kan detta förbättras i framtiden?
+                </button>
+            </div>
+        </article>
+
+        <!-- 
+        ============================================================
+        VERSION 2: FÖR EKONOMER
+        Teknisk terminologi och redovisningsbegrepp
+        ============================================================
+        -->
+        <article class="content-card" id="ekonom">
+            <h2>Teknisk förklaring</h2>
+            
+            <p>
+                Vid bokslutsarbetet har avstämning genomförts mellan avräkningskontona 
+                2880 (dagrapporter) och 2881 (kassarapporter) per 2025-12-31.
+            </p>
+
+            <h3>Avstämningssituation</h3>
+
+            <!-- Visualisering av kontona -->
+            <div class="konto-visualization">
+                <div class="konto-box konto-2880">
+                    <div class="konto-nummer">Kto 2880</div>
+                    <div class="konto-namn">Avräkning dagrapport</div>
+                    <div class="konto-belopp">Kredit: 1 739 608,33</div>
+                </div>
+                
+                <div class="balance-symbol">⚖️</div>
+                
+                <div class="konto-box konto-2881">
+                    <div class="konto-nummer">Kto 2881</div>
+                    <div class="konto-namn">Avräkning kassarapport</div>
+                    <div class="konto-belopp">Debet: 1 739 608,33</div>
+                </div>
+            </div>
+
+            <!-- Informationsruta -->
+            <div class="info-box success">
+                <div class="info-box-title">✅ Status per bokslutsdagen</div>
+                <p>
+                    Periodavgränsningsbokning har genomförts. Saldona på konto 2880 och 2881 
+                    är avstämda och nettosaldot är noll. Bokslutsdokumentationen är färdigställd.
+                </p>
+            </div>
+
+            <h3>Den sena kassarapporten</h3>
+            
+            <p>
+                Efter genomförd avstämning har en kassarapport inkommit som avser 
+                transaktioner från 2025. Verifikationen har bokförts med 
+                verifikationsdatum 2026-01-01 och påverkar konto 2881 (debet).
+            </p>
+
+            <div class="info-box info">
+                <div class="info-box-title">📋 Redovisningsteknisk analys</div>
+                <p>
+                    Frågeställningen är huruvida verifikationen bör periodiseras till 
+                    räkenskapsåret 2025 för att uppnå matchning med avräkningskonto 2880.
+                </p>
+            </div>
+
+            <h3>Konsekvensanalys av ombokning</h3>
+
+            <!-- Scenariojämförelse för ekonomer -->
+            <div class="scenario-container">
+                <div class="scenario-box bad">
+                    <h4>❌ Alternativ A: Ombokning till 2025</h4>
+                    <ol>
+                        <li>Debitering kto 2881 i 2025 → obalans uppstår</li>
+                        <li>Periodavgränsningsbokning krävs (debet 2880/kredit 2881)</li>
+                        <li>Reversering i 2026 (kredit 2880/debet 2881)</li>
+                        <li>Nettoresultat: Samma utgående saldo</li>
+                        <li>Administrativ overhead utan materiell påverkan</li>
+                    </ol>
+                </div>
+                
+                <div class="scenario-box good">
+                    <h4>✅ Alternativ B: Bibehåll bokföring i 2026</h4>
+                    <ol>
+                        <li>2025 års avstämning kvarstår oförändrad</li>
+                        <li>Verifikationen ligger kvar på 2026-01-01</li>
+                        <li>Ingen ytterligare periodavgränsning erfordras</li>
+                        <li>Nettoresultat: Identiskt med alternativ A</li>
+                        <li>Väsentlighetsprincipen tillämpas</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Informationsruta om väsentlighetsprincipen -->
+            <div class="info-box info">
+                <div class="info-box-title">📖 Tillämpliga principer</div>
+                <p>
+                    Enligt <strong>väsentlighetsprincipen</strong> i kommunal redovisning ska 
+                    periodiseringar genomföras när de har materiell betydelse för den 
+                    rättvisande bilden. I detta fall ger ombokning inget informationsvärde 
+                    då motbokningen omedelbart neutraliserar effekten.
+                </p>
+                <p style="margin-bottom: 0;">
+                    Principen om <strong>kostnad-nytta</strong> gäller även – administrativt 
+                    arbete ska stå i proportion till informationsvärdet.
+                </p>
+            </div>
+
+            <!-- Slutsats -->
+            <div class="conclusion-box">
+                <h3>📊 Slutsats</h3>
+                <p>
+                    Ombokning av den sena kassarapporten till 2025 saknar redovisningsteknisk 
+                    substans. Eftersom avräkningskontona redan är avstämda och eventuell 
+                    ombokning skulle kräva omedelbar neutralisering, är korrekt hantering 
+                    att låta verifikationen kvarstå med bokföringsdatum 2026-01-01.
+                </p>
+            </div>
+
+            <!-- Knapp för att öppna modal -->
+            <div class="modal-trigger-container">
+                <button class="modal-trigger-btn" id="open-modal-btn-2">
+                    Läs mer: Systemintegration SIE vs API
+                </button>
+            </div>
+        </article>
+    </main>
+
+    <!-- 
+    ============================================================
+    MODAL: SIE VS API
+    Förklaring av filöverföring mellan system
+    ============================================================
+    -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <!-- Modal-header med stängknapp -->
+            <div class="modal-header">
+                <h2>🔄 Hur kan detta förbättras?</h2>
+                <button class="modal-close-btn" id="modal-close-btn" aria-label="Stäng">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <p>
+                    Problemet med sena kassarapporter beror delvis på hur information överförs 
+                    mellan kassasystemet (BRP) och ekonomisystemet (Raindance). Idag görs detta 
+                    manuellt via så kallade SIE-filer.
+                </p>
+
+                <h3>Vad är en SIE-fil?</h3>
+                <p>
+                    SIE (Standard Import Export) är ett svenskt filformat för att flytta 
+                    bokföringsdata mellan olika system. Tänk dig det som ett universellt språk 
+                    som olika ekonomiprogram kan läsa och förstå.
+                </p>
+
+                <!-- Processflöde för SIE -->
+                <div class="process-flow">
+                    <div class="process-step">
+                        <div class="icon">🏪</div>
+                        <div class="label">Kassasystem (BRP)</div>
+                    </div>
+                    <div class="process-arrow">→</div>
+                    <div class="process-step">
+                        <div class="icon">📄</div>
+                        <div class="label">SIE-fil skapas</div>
+                    </div>
+                    <div class="process-arrow">→</div>
+                    <div class="process-step">
+                        <div class="icon">👤</div>
+                        <div class="label">Manuell hantering</div>
+                    </div>
+                    <div class="process-arrow">→</div>
+                    <div class="process-step">
+                        <div class="icon">💼</div>
+                        <div class="label">Ekonomisystem</div>
+                    </div>
+                </div>
+
+                <h3>Jämförelse: Dagens metod vs framtidens</h3>
+
+                <!-- Jämförelsekort -->
+                <div class="comparison-grid">
+                    <div class="comparison-card old">
+                        <h4>📁 SIE-filer (idag)</h4>
+                        <ul>
+                            <li>Manuell export varje dag</li>
+                            <li>Risk att filer glöms eller försenas</li>
+                            <li>Kräver manuell import i ekonomisystemet</li>
+                            <li>Ingen realtidsuppdatering</li>
+                            <li>Svårt att spåra var i processen något fastnat</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="comparison-card new">
+                        <h4>🔌 API-integration (framtiden)</h4>
+                        <ul>
+                            <li>Automatisk överföring i realtid eller schemalagt</li>
+                            <li>Ingen manuell hantering behövs</li>
+                            <li>Direkt kommunikation mellan systemen</li>
+                            <li>Minskar risken för sena rapporter</li>
+                            <li>Full spårbarhet och loggning</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Vad är ett API?</h3>
+                <p>
+                    API står för "Application Programming Interface" och är ett sätt för 
+                    datorprogram att prata direkt med varandra. Istället för att en människa 
+                    måste flytta filer mellan system, kan systemen automatiskt utbyta 
+                    information – ungefär som när din bank-app automatiskt visar ditt 
+                    saldo utan att du behöver logga in på bankens hemsida separat.
+                </p>
+
+                <!-- Processflöde för API -->
+                <div class="process-flow">
+                    <div class="process-step">
+                        <div class="icon">🏪</div>
+                        <div class="label">Kassasystem (BRP)</div>
+                    </div>
+                    <div class="process-arrow">⚡</div>
+                    <div class="process-step">
+                        <div class="icon">🔌</div>
+                        <div class="label">API-koppling</div>
+                    </div>
+                    <div class="process-arrow">⚡</div>
+                    <div class="process-step">
+                        <div class="icon">💼</div>
+                        <div class="label">Ekonomisystem</div>
+                    </div>
+                </div>
+
+                <div class="info-box success">
+                    <div class="info-box-title">💡 Fördelar för kommunen</div>
+                    <p>
+                        Med API-integration skulle kassarapporter överföras automatiskt, 
+                        vilket eliminerar problemet med sena rapporter vid bokslut. 
+                        Det sparar arbetstid, minskar fel och ger bättre kontroll 
+                        över ekonomiflödena.
+                    </p>
+                </div>
+
+                <p>
+                    <strong>Att tänka på:</strong> En API-integration kräver initial investering 
+                    i systemutveckling och att båda systemleverantörerna stödjer tekniken. 
+                    Det kan vara värt att utreda vid nästa upphandling eller systemuppdatering.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    ============================================================
+    FOOTER
+    Sidfot med information
+    ============================================================
+    -->
+    <footer>
+        <p>
+            Skapad som utbildningsmaterial för Simrishamns kommun
+        </p>
+    </footer>
+
+    <!-- 
+    ============================================================
+    JAVASCRIPT
+    Hanterar fliknavigering och modal
+    ============================================================
+    -->
+    <script>
+        /*
+        ============================================================
+        FLIKNAVIGERING
+        
+        Funktionalitet för att växla mellan de två versionerna
+        (icke-ekonom och ekonom) genom att klicka på flikar.
+        ============================================================
+        */
+        
+        // Hämta alla flik-knappar och innehållskort
+        // querySelectorAll returnerar en NodeList med alla matchande element
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const contentCards = document.querySelectorAll('.content-card');
+
+        // Funktion som körs när en flik klickas
+        function handleTabClick(event) {
+            // event.currentTarget är knappen som klickades
+            const clickedButton = event.currentTarget;
+            
+            // Hämta data-tab attributet som anger vilken flik som ska visas
+            // t.ex. data-tab="icke-ekonom" eller data-tab="ekonom"
+            const tabId = clickedButton.dataset.tab;
+
+            // Ta bort 'active' klassen från alla knappar
+            // forEach loopar genom alla element i NodeList
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Ta bort 'active' klassen från alla innehållskort
+            contentCards.forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Lägg till 'active' klassen på den klickade knappen
+            clickedButton.classList.add('active');
+
+            // Hitta och visa rätt innehållskort
+            // getElementById hittar elementet med matchande id
+            const targetCard = document.getElementById(tabId);
+            if (targetCard) {
+                targetCard.classList.add('active');
+            }
+        }
+
+        // Lägg till click-event på alla flik-knappar
+        // När användaren klickar körs handleTabClick-funktionen
+        tabButtons.forEach(button => {
+            button.addEventListener('click', handleTabClick);
+        });
+
+        /*
+        ============================================================
+        MODAL (POPUP-FÖNSTER)
+        
+        Funktionalitet för att öppna och stänga modal-fönstret
+        som innehåller information om SIE vs API.
+        ============================================================
+        */
+
+        // Hämta modal-element
+        const modalOverlay = document.getElementById('modal-overlay');
+        const openModalBtn1 = document.getElementById('open-modal-btn-1');
+        const openModalBtn2 = document.getElementById('open-modal-btn-2');
+        const closeModalBtn = document.getElementById('modal-close-btn');
+
+        // Funktion för att öppna modal
+        function openModal() {
+            // Lägg till 'active' klassen som gör modalen synlig
+            // (se CSS för .modal-overlay.active)
+            modalOverlay.classList.add('active');
+            
+            // Förhindra scrollning på bakgrunden när modal är öppen
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Funktion för att stänga modal
+        function closeModal() {
+            // Ta bort 'active' klassen för att dölja modalen
+            modalOverlay.classList.remove('active');
+            
+            // Återställ scrollning på bakgrunden
+            document.body.style.overflow = '';
+        }
+
+        // Lägg till click-event på öppna-knappar (finns en i varje version)
+        openModalBtn1.addEventListener('click', openModal);
+        openModalBtn2.addEventListener('click', openModal);
+
+        // Lägg till click-event på stäng-knappen (X i modalen)
+        closeModalBtn.addEventListener('click', closeModal);
+
+        // Stäng modal om användaren klickar utanför innehållet
+        // (på den mörka bakgrunden)
+        modalOverlay.addEventListener('click', function(event) {
+            // Kontrollera om klicket var direkt på overlay, inte på innehållet
+            // event.target är det element som faktiskt klickades
+            if (event.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        // Stäng modal med Escape-tangenten
+        document.addEventListener('keydown', function(event) {
+            // event.key innehåller namnet på tangenten som trycktes
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        /*
+        ============================================================
+        TILLGÄNGLIGHET (ACCESSIBILITY)
+        
+        Förbättringar för tangentbordsnavigering och skärmläsare.
+        ============================================================
+        */
+
+        // Lägg till aria-controls attribut på flik-knappar
+        // Detta hjälper skärmläsare att förstå kopplingen mellan
+        // knapp och innehåll
+        tabButtons.forEach(button => {
+            const tabId = button.dataset.tab;
+            button.setAttribute('aria-controls', tabId);
+            
+            // aria-selected indikerar vilken flik som är vald
+            button.setAttribute('aria-selected', 
+                button.classList.contains('active') ? 'true' : 'false');
+        });
+
+        // Uppdatera aria-selected när flik byts
+        // Detta görs genom att "övervaka" DOM-ändringar
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    const button = mutation.target;
+                    if (button.classList.contains('tab-button')) {
+                        button.setAttribute('aria-selected', 
+                            button.classList.contains('active') ? 'true' : 'false');
+                    }
+                }
+            });
+        });
+
+        // Starta observern på varje flik-knapp
+        tabButtons.forEach(button => {
+            observer.observe(button, { attributes: true });
+        });
+
+        /*
+        ============================================================
+        KONSOL-MEDDELANDE
+        
+        Informativt meddelande för utvecklare som inspekterar koden.
+        ============================================================
+        */
+        console.log('📊 Avstämning av balanskonton - utbildningsmaterial');
+        console.log('Växla mellan versioner med flikarna ovan.');
+        console.log('Klicka på "Läs mer" för information om systemintegration.');
+    </script>
+</body>
+</html>
