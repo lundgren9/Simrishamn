@@ -211,12 +211,30 @@ git checkout -b main origin/main<br><br>
         
         <h3>Visa konfigurerad användare</h3>
         <div class="command-box">
-            <code><span class="comment"># Visa globalt konfigurerat användarnamn och e-post</span><br>
+            <code><span class="comment"># Visa ALLA inställningar (både global och lokal) med källa</span><br>
+git config --list --show-origin<br><br>
+<span class="comment"># Eller filtrera på user-inställningar:</span><br>
+git config --list --show-origin | findstr user</code>
+        </div>
+        
+        <p>Kommandot visar varifrån varje inställning kommer:</p>
+        <div class="command-box">
+            <code><span class="comment"># Exempel på output:</span><br>
+file:C:/Users/Kent/.gitconfig   user.name=kentlundgren<br>
+file:C:/Users/Kent/.gitconfig   user.email=kent@example.com<br>
+file:.git/config                user.name=lundgren9  <span class="comment">← lokal override</span></code>
+        </div>
+        
+        <div class="tip">
+            <p><strong>Förenklat:</strong></p>
+            <div class="command-box">
+                <code><span class="comment"># Visa endast globalt</span><br>
 git config --global user.name<br>
 git config --global user.email<br><br>
-<span class="comment"># Visa lokalt konfigurerat (för aktuellt repo)</span><br>
+<span class="comment"># Visa endast lokalt (för aktuellt repo)</span><br>
 git config user.name<br>
 git config user.email</code>
+            </div>
         </div>
         
         <h3>Visa lagrade credentials (inloggningsuppgifter)</h3>
@@ -238,6 +256,64 @@ gh auth status<br>
 <span class="comment"># (kräver GitHub CLI installerat)</span></code>
         </div>
         
+        <!-- ===== UPPDATERING 18 jan 2026: SSH host authenticity ===== -->
+        <h3>⚠️ "The authenticity of host can't be established" - Vad betyder det?</h3>
+        
+        <p>Första gången du ansluter via SSH till GitHub kan du få detta meddelande:</p>
+        
+        <div class="command-box" style="background: #1a1a2e; border-color: var(--accent-orange);">
+            <code style="color: var(--accent-orange);">The authenticity of host 'github.com (4.225.11.194)' can't be established.<br>
+ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.<br>
+This key is not known by any other names.<br>
+Are you sure you want to continue connecting (yes/no/[fingerprint])?</code>
+        </div>
+        
+        <div class="tip">
+            <p><strong>🎉 Ingen panik!</strong> Detta är <strong>helt normalt</strong> och inte farligt.</p>
+            <p>Det betyder att din dator aldrig har anslutit till GitHub via SSH förut. SSH frågar helt enkelt: <em>"Jag känner inte igen denna server - litar du på den?"</em></p>
+        </div>
+        
+        <p><strong>Vad ska du göra?</strong></p>
+        <ol>
+            <li><strong>Verifiera fingeravtrycket</strong> – Jämför med GitHub:s officiella fingerprints (se nedan)</li>
+            <li><strong>Svara <code>yes</code></strong> – Om fingeravtrycket stämmer</li>
+            <li><strong>Klart!</strong> – GitHub sparas i din "known_hosts" och du får inte frågan igen</li>
+        </ol>
+        
+        <h3>GitHub:s officiella SSH-fingerprints</h3>
+        <p>Dessa är de korrekta fingeravtrycken från GitHub (januari 2026):</p>
+        
+        <table>
+            <tr>
+                <th>Algoritm</th>
+                <th>Fingerprint</th>
+            </tr>
+            <tr>
+                <td><code>ED25519</code></td>
+                <td><code>SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU</code></td>
+            </tr>
+            <tr>
+                <td><code>RSA</code></td>
+                <td><code>SHA256:uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s</code></td>
+            </tr>
+            <tr>
+                <td><code>ECDSA</code></td>
+                <td><code>SHA256:p2QAMXNIC1TJYWeIOttrVc98/R1BUFWu3/LiyKgUfQM</code></td>
+            </tr>
+        </table>
+        
+        <div class="warning">
+            <p><strong>Säkerhetstips:</strong> Om fingeravtrycket <strong>INTE</strong> matchar någon av ovan – svara <code>no</code>! Det kan betyda att någon försöker avlyssna din anslutning (man-in-the-middle attack).</p>
+            <p>Källa: <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints" style="color: var(--accent-blue);">GitHub:s officiella dokumentation</a></p>
+        </div>
+        
+        <p><strong>Efter att du svarat "yes":</strong></p>
+        <div class="command-box">
+            <code><span class="comment"># Förväntat svar om allt fungerar:</span><br>
+Hi lundgren9! You've successfully authenticated, but GitHub does not provide shell access.</code>
+        </div>
+        <p>Detta bekräftar att du är autentiserad som användaren <code>lundgren9</code>.</p>
+        
         <div class="tip">
             <p><strong>Tips:</strong> Om du har flera konton kan du sätta olika användare per repo:</p>
             <div class="command-box">
@@ -246,6 +322,108 @@ git config user.name "lundgren9"<br>
 git config user.email "din-email@example.com"</code>
             </div>
         </div>
+        
+        <!-- ===== UPPDATERING 18 jan 2026: Arbeta med flera Git-konton ===== -->
+        <h2>1c. Arbeta med flera GitHub-konton</h2>
+        
+        <p>Om du har flera GitHub-konton (t.ex. <code>kentlundgren</code> och <code>lundgren9</code>) behöver du förstå skillnaden mellan <strong>lokal identitet</strong> och <strong>remote-åtkomst</strong>.</p>
+        
+        <h3>Två olika saker att hålla koll på</h3>
+        
+        <table>
+            <tr>
+                <th>Begrepp</th>
+                <th>Vad det är</th>
+                <th>Var det konfigureras</th>
+            </tr>
+            <tr>
+                <td><strong>Lokal identitet</strong></td>
+                <td>Namn och e-post som syns i dina commits</td>
+                <td><code>git config user.name</code> och <code>user.email</code></td>
+            </tr>
+            <tr>
+                <td><strong>Remote-åtkomst</strong></td>
+                <td>Vilket konto du loggar in med för att pusha/pulla</td>
+                <td>Windows Credential Manager eller SSH-nycklar</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>Viktigt att förstå:</strong> Din lokala identitet (user.name) påverkar <strong>inte</strong> vilken rätt du har att pusha till ett repo. Det avgörs av din autentisering (credentials).</p>
+        </div>
+        
+        <h3>Scenario: Pusha till ett repo som ägs av ett annat konto</h3>
+        
+        <p>Exempel: Du är inloggad lokalt som <code>kentlundgren</code> men vill pusha till <code>lundgren9/Simrishamn</code>.</p>
+        
+        <p><strong>Lösning:</strong> Bjud in dig själv som contributor!</p>
+        
+        <ol>
+            <li>Logga in på GitHub som <code>lundgren9</code> (repo-ägaren)</li>
+            <li>Gå till <strong>Settings</strong> → <strong>Collaborators</strong></li>
+            <li>Klicka <strong>Add people</strong> och sök efter <code>kentlundgren</code></li>
+            <li>Skicka inbjudan</li>
+            <li>Logga in som <code>kentlundgren</code> och acceptera inbjudan</li>
+        </ol>
+        
+        <p>Nu kan <code>kentlundgren</code> pusha till repot!</p>
+        
+        <h3>Kolla vilken identitet du använder lokalt</h3>
+        
+        <div class="command-box">
+            <code><span class="comment"># Enklaste sättet - visa namn och e-post</span><br>
+git config user.name<br>
+git config user.email<br><br>
+<span class="comment"># Om inget visas: ingen lokal config finns, kolla global</span><br>
+git config --global user.name<br>
+git config --global user.email</code>
+        </div>
+        
+        <h3>Byta identitet för ett specifikt repo</h3>
+        
+        <p>Om du vill att commits i detta repo ska visas med ett annat namn:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Ställ in lokal identitet (gäller ENDAST detta repo)</span><br>
+git config user.name "lundgren9"<br>
+git config user.email "lundgren9@example.com"<br><br>
+<span class="comment"># Verifiera</span><br>
+git config user.name</code>
+        </div>
+        
+        <div class="warning">
+            <p><strong>OBS:</strong> Detta ändrar bara namnet som visas i commits - det ändrar <strong>inte</strong> vilket konto du är autentiserad mot GitHub med!</p>
+        </div>
+        
+        <h3>Förstå git config --list --show-origin</h3>
+        
+        <p>När du kör <code>git config --list --show-origin</code> får du ALLA inställningar från alla källor:</p>
+        
+        <table>
+            <tr>
+                <th>Källa (fil)</th>
+                <th>Vad det är</th>
+            </tr>
+            <tr>
+                <td><code>C:/Program Files/Git/etc/gitconfig</code></td>
+                <td><strong>System</strong> - Git-installationens standardinställningar</td>
+            </tr>
+            <tr>
+                <td><code>C:/Users/Kent/.gitconfig</code></td>
+                <td><strong>Global</strong> - Din personliga config (--global)</td>
+            </tr>
+            <tr>
+                <td><code>.git/config</code></td>
+                <td><strong>Lokal</strong> - Endast för detta repo</td>
+            </tr>
+        </table>
+        
+        <p>Outputen kan vara lång! Tips:</p>
+        <ul>
+            <li>Tryck <code>Space</code> för att scrolla ner</li>
+            <li>Tryck <code>q</code> för att avsluta</li>
+            <li>Eller använd: <code>git config --list --show-origin | findstr user</code> för att filtrera</li>
+        </ul>
         
         <!-- ===================== VANLIGT ARBETSFLÖDE ===================== -->
         <h2>2. Vanligt arbetsflöde (dagligt arbete)</h2>
