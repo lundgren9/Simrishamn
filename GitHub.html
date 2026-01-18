@@ -395,6 +395,108 @@ git config user.name</code>
             <p><strong>OBS:</strong> Detta ändrar bara namnet som visas i commits - det ändrar <strong>inte</strong> vilket konto du är autentiserad mot GitHub med!</p>
         </div>
         
+        <!-- ===== UPPDATERING 18 jan 2026: Du har inte tillstånd ===== -->
+        <h2>1d. "Du har inte tillstånd" - Vanligt problem</h2>
+        
+        <p>Om du försöker pusha och får ett felmeddelande som detta:</p>
+        
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <img src="du_har_inte_tillstand.jpg" alt="Felmeddelande: Du har inte tillstånd" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;"><em>Exempel på felmeddelande när man saknar push-rättigheter</em></p>
+        </div>
+        
+        <h3>Varför händer detta?</h3>
+        
+        <p>Detta felmeddelande betyder att <strong>kontot du är autentiserad med</strong> inte har rättighet att pusha till repot. Det kan bero på:</p>
+        
+        <table>
+            <tr>
+                <th>Orsak</th>
+                <th>Förklaring</th>
+            </tr>
+            <tr>
+                <td><strong>Fel konto i Credential Manager</strong></td>
+                <td>Windows har sparat inloggningsuppgifter för ett annat GitHub-konto än det som äger repot</td>
+            </tr>
+            <tr>
+                <td><strong>Inte inbjuden som collaborator</strong></td>
+                <td>Du försöker pusha till någon annans repo utan att ha blivit inbjuden</td>
+            </tr>
+            <tr>
+                <td><strong>Inbjudan inte accepterad</strong></td>
+                <td>Du har fått en inbjudan men inte accepterat den ännu</td>
+            </tr>
+        </table>
+        
+        <div class="warning">
+            <p><strong>Viktigt att förstå:</strong> Det spelar ingen roll vad du har i <code>git config user.name</code> – det som avgör din push-rättighet är vilket konto som är <strong>autentiserat</strong> mot GitHub (sparade credentials).</p>
+        </div>
+        
+        <h3>Lösning 1: Bjud in rätt konto som collaborator</h3>
+        
+        <p>Om du har flera GitHub-konton och vill att ditt "andra" konto ska kunna pusha:</p>
+        
+        <ol>
+            <li>Logga in på GitHub.com med kontot som <strong>äger</strong> repot</li>
+            <li>Gå till repot → <strong>Settings</strong> → <strong>Collaborators</strong></li>
+            <li>Klicka <strong>Add people</strong></li>
+            <li>Sök efter och bjud in ditt andra konto</li>
+            <li>Logga in på GitHub med det inbjudna kontot</li>
+            <li>Acceptera inbjudan (finns under <strong>Notifications</strong> eller via e-post)</li>
+        </ol>
+        
+        <div class="tip">
+            <p><strong>✅ Rekommenderas!</strong> Detta är den enklaste lösningen om du har flera konton.</p>
+        </div>
+        
+        <h3>Lösning 2: Byt sparade credentials i Windows</h3>
+        
+        <p>Om du vill byta vilket konto som används för autentisering:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Steg 1: Öppna Credential Manager</span><br>
+<span class="comment"># Sök efter "Credential Manager" eller "Hanteraren för autentiseringsuppgifter" i Start-menyn</span><br><br>
+<span class="comment"># Steg 2: Klicka på "Windows Credentials" / "Windows-autentiseringsuppgifter"</span><br><br>
+<span class="comment"># Steg 3: Hitta "git:https://github.com"</span><br><br>
+<span class="comment"># Steg 4: Klicka på den och välj "Remove" / "Ta bort"</span><br><br>
+<span class="comment"># Steg 5: Nästa gång du pushar kommer Git fråga efter inloggning igen</span></code>
+        </div>
+        
+        <p>Du kan också köra detta i PowerShell:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Visa alla sparade GitHub-credentials</span><br>
+cmdkey /list | findstr github<br><br>
+<span class="comment"># Ta bort sparad credential (kräver exakt namn från listan ovan)</span><br>
+cmdkey /delete:git:https://github.com</code>
+        </div>
+        
+        <h3>Lösning 3: Använd SSH istället för HTTPS</h3>
+        
+        <p>Med SSH kan du ha olika nycklar för olika konton:</p>
+        
+        <div class="command-box">
+            <code><span class="comment"># Kontrollera vilken remote du använder</span><br>
+git remote -v<br><br>
+<span class="comment"># Om den börjar med https://, byt till SSH:</span><br>
+git remote set-url origin git@github.com:lundgren9/Simrishamn.git<br><br>
+<span class="comment"># Verifiera ändringen</span><br>
+git remote -v</code>
+        </div>
+        
+        <h3>Sammanfattning: Vad göra när du får "Du har inte tillstånd"</h3>
+        
+        <div class="workflow">
+            <div class="workflow-title">🔧 Steg-för-steg felsökning</div>
+            <ol>
+                <li><strong>Kolla vilken remote du använder:</strong> <code>git remote -v</code></li>
+                <li><strong>Kontrollera att du är inbjuden</strong> till repot (om du inte äger det)</li>
+                <li><strong>Ta bort gamla credentials</strong> i Credential Manager</li>
+                <li><strong>Försök pusha igen</strong> – Git kommer fråga efter ny inloggning</li>
+                <li><strong>Logga in med rätt konto</strong></li>
+            </ol>
+        </div>
+        
         <h3>Förstå git config --list --show-origin</h3>
         
         <p>När du kör <code>git config --list --show-origin</code> får du ALLA inställningar från alla källor:</p>
