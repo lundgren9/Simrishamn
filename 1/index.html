@@ -415,7 +415,8 @@
         <!-- Rubrik och datum (visas alltid) -->
         <h1>
             🖥️ Felsökningsrapport: Raindance
-            <span id="versionLabel" class="version-label version-it">IT-version</span>
+            <!-- ÄNDRAD: Kolleg-version visas som default istället för IT-version -->
+            <span id="versionLabel" class="version-label version-colleague">Kolleg-version</span>
         </h1>
         <p class="date">📅 Söndag 18 januari 2026 | Rapporterad av Kent Lundgren</p>
 
@@ -426,7 +427,8 @@
              till IT-avdelningen med felkoder, URL-analys
              och rekommendationer.
              =========================================== -->
-        <div id="itVersion">
+        <!-- ÄNDRAD: IT-versionen är nu dold som default (hidden tillagd) -->
+        <div id="itVersion" class="hidden">
             
             <!-- Kort sammanfattning i en infobanner -->
             <div class="info-banner">
@@ -645,7 +647,8 @@
              Mer avslappnad och lättförståelig version
              för ekonomer och controllers.
              =========================================== -->
-        <div id="colleagueVersion" class="hidden">
+        <!-- ÄNDRAD: Kolleg-versionen visas nu som default (hidden borttagen) -->
+        <div id="colleagueVersion">
             
             <!-- Personlig introduktion med avslappnad ton -->
             <div class="colleague-intro">
@@ -811,8 +814,10 @@
          =========================================== -->
     <div class="version-toggle">
         <button class="toggle-btn" onclick="toggleVersion()">
-            <span id="toggleIcon">👔</span>
-            <span id="toggleText">Visa kolleg-version</span>
+            <!-- ÄNDRAD: Ikon och text uppdaterade för att matcha att kolleg-version visas först -->
+            <!-- ☕ = kolleg-version aktiv, knappen erbjuder att visa IT-version -->
+            <span id="toggleIcon">☕</span>
+            <span id="toggleText">Visa IT-version</span>
         </button>
     </div>
 
@@ -828,8 +833,11 @@
         // 
         // true = IT-versionen visas
         // false = Kolleg-versionen visas
+        // 
+        // ÄNDRAD: Startvärde ändrat från true till false
+        // så att kolleg-versionen visas först som default
         // ==================================================
-        let isITVersion = true;
+        let isITVersion = false;
 
         // ==================================================
         // FUNKTION: toggleVersion()
