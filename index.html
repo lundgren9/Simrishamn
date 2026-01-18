@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simrishamn kommun - Ekonomianalys & Dokumentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* =============================================
+           CSS-VARIABLER
+           Färgschema inspirerat av moderna dashboard-designer
+           ============================================= */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --bg-card-hover: #475569;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --border-color: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* =============================================
+           HEADER
+           ============================================= */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* =============================================
+           MAIN CONTENT
+           ============================================= */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* =============================================
+           NOTIS-BANNER
+           ============================================= */
+        .notice-banner {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notice-banner .icon {
+            font-size: 2rem;
+        }
+
+        .notice-banner .content h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .notice-banner .content p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* =============================================
+           SECTION HEADERS
+           ============================================= */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 2.5rem 0 1.5rem 0;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-header .badge {
+            background: var(--accent-green);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* =============================================
+           KORT-GRID
+           ============================================= */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--accent-blue);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .card.blue::before { background: var(--accent-blue); }
+        .card.green::before { background: var(--accent-green); }
+        .card.orange::before { background: var(--accent-orange); }
+        .card.purple::before { background: var(--accent-purple); }
+        .card.pink::before { background: var(--accent-pink); }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background: var(--bg-card);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .card-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .card-links a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .card-links a:hover {
+            color: var(--accent-purple);
+        }
+
+        /* =============================================
+           INFO-BOX
+           ============================================= */
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent-blue);
+            margin: 2rem 0;
+        }
+
+        .info-box h3 {
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .info-box code {
+            background: var(--bg-card);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent-orange);
+        }
+
+        .link-example {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .link-example .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .link-example a {
+            color: var(--accent-blue);
+            word-break: break-all;
+        }
+
+        /* =============================================
+           FOOTER
+           ============================================= */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        /* =============================================
+           RESPONSIVE
+           ============================================= */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.75rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .notice-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- =============================================
+         HEADER
+         ============================================= -->
+    <header>
+        <h1>🏛️ Simrishamn kommun</h1>
+        <p>Ekonomianalys, avstämningar och dokumentation</p>
+    </header>
+
+    <!-- =============================================
+         MAIN CONTENT
+         ============================================= -->
+    <main>
+        <!-- Aktuell notis -->
+        <div class="notice-banner">
+            <span class="icon">📊</span>
+            <div class="content">
+                <h2>Aktuellt: Kontoavstämningar genomförda</h2>
+                <p>Vi har analyserat och dokumenterat avstämningar för balanskonton inom kultur- och fritidsförvaltningen, 
+                   inklusive badet (kto 2880/2881) samt museet och biblioteket (kto 2896).</p>
+            </div>
+        </div>
+
+        <!-- =============================================
+             SEKTION: EKONOMIANALYS
+             ============================================= -->
+        <div class="section-header">
+            <h2>📈 Ekonomianalys & Avstämningar</h2>
+            <span class="badge">Uppdaterat jan 2026</span>
+        </div>
+
+        <div class="card-grid">
+            <!-- Konto 2880/2881 - Badet (Dashboard) -->
+            <div class="card blue">
+                <div class="card-icon">🏊‍♂️</div>
+                <h3>Badsäsong 2025 - Dashboard</h3>
+                <p>Interaktiv visualisering av obalanser mellan konto 2880 (dagrapporter) och 2881 (kassarapporter) 
+                   för badanläggningarna i Simrishamn. Identifierar Swish-problem och föreslår rättelseåtgärder.</p>
+                <div class="card-tags">
+                    <span class="tag">Konto 2880</span>
+                    <span class="tag">Konto 2881</span>
+                    <span class="tag">Diagram</span>
+                    <span class="tag">Swish-analys</span>
+                </div>
+                <div class="card-links">
+                    <a href="https://lundgren9.github.io/konto_2880_2881_per_250923/" target="_blank">
+                        📄 Visa sida →
+                    </a>
+                    <a href="https://github.com/lundgren9/konto_2880_2881_per_250923" target="_blank">
+                        💻 Källkod
+                    </a>
+                </div>
+            </div>
+
+            <!-- Konto 2880/2881 - Pedagogisk förklaring -->
+            <div class="card green">
+                <div class="card-icon">⚖️</div>
+                <h3>Avstämning konto 2880/2881</h3>
+                <p>Pedagogisk förklaring av hur avräkningskontona för dag- och kassarapporter fungerar. 
+                   Finns i två versioner: en för alla och en för ekonomer. Förklarar varför sena kassarapporter 
+                   inte alltid behöver bokas om.</p>
+                <div class="card-tags">
+                    <span class="tag">Pedagogisk</span>
+                    <span class="tag">Två versioner</span>
+                    <span class="tag">Bokslut</span>
+                </div>
+                <div class="card-links">
+                    <a href="https://lundgren9.github.io/Simrishamn/2/" target="_blank">
+                        📄 Visa sida →
+                    </a>
+                    <a href="https://github.com/lundgren9/Simrishamn/blob/main/2/index.html" target="_blank">
+                        💻 Källkod
+                    </a>
+                </div>
+            </div>
+
+            <!-- Konto 2896 - Museet & Biblioteket -->
+            <div class="card orange">
+                <div class="card-icon">🏛️</div>
+                <h3>Museet & Biblioteket (kto 2896)</h3>
+                <p>Avstämning av kassatransaktioner för museet och biblioteket via balanskonto 2896. 
+                   Dokumenterar differenser och ger förslag på hantering.</p>
+                <div class="card-tags">
+                    <span class="tag">Konto 2896</span>
+                    <span class="tag">Museet</span>
+                    <span class="tag">Biblioteket</span>
+                </div>
+                <div class="card-links">
+                    <a href="https://kentlundgren.se/arbete/SK/202509/kto_2896/" target="_blank">
+                        📄 Visa sida →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Raindance felsökning -->
+            <div class="card pink">
+                <div class="card-icon">🖥️</div>
+                <h3>Raindance - Felsökningsrapport</h3>
+                <p>Dokumentation av ett anslutningsfel till Raindance SaaS-tjänsten. Förklarar URL-struktur, 
+                   felkoder och ger rekommendationer. Finns i IT-version och kolleg-version.</p>
+                <div class="card-tags">
+                    <span class="tag">Raindance</span>
+                    <span class="tag">Felsökning</span>
+                    <span class="tag">IT-support</span>
+                </div>
+                <div class="card-links">
+                    <a href="https://lundgren9.github.io/Simrishamn/1/" target="_blank">
+                        📄 Visa sida →
+                    </a>
+                    <a href="https://github.com/lundgren9/Simrishamn/blob/main/1/index.html" target="_blank">
+                        💻 Källkod
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================
+             SEKTION: GIT & GITHUB
+             ============================================= -->
+        <div class="section-header">
+            <h2>🔧 Verktyg & Lärande</h2>
+        </div>
+
+        <div class="card-grid">
+            <!-- Git & GitHub Guide -->
+            <div class="card purple">
+                <div class="card-icon">📚</div>
+                <h3>Git & GitHub - Synkroniseringsguide</h3>
+                <p>En komplett guide för att synkronisera lokalt Git-repository med GitHub. 
+                   Innehåller instruktioner för kloning, dagligt arbetsflöde, SSH-setup, 
+                   hantering av flera konton och vanliga problem.</p>
+                <div class="card-tags">
+                    <span class="tag">Git</span>
+                    <span class="tag">GitHub</span>
+                    <span class="tag">SSH</span>
+                    <span class="tag">Tutorial</span>
+                </div>
+                <div class="card-links">
+                    <a href="https://lundgren9.github.io/Simrishamn/GitHub.html" target="_blank">
+                        📄 Visa sida →
+                    </a>
+                    <a href="https://github.com/lundgren9/Simrishamn/blob/main/GitHub.html" target="_blank">
+                        💻 Källkod
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================
+             INFO-BOX: Sida vs Källkod
+             ============================================= -->
+        <div class="info-box">
+            <h3>💡 Förstå skillnaden: "Visa sida" vs "Källkod"</h3>
+            <p>Varje webbsida i detta projekt kan nås på <strong>två sätt</strong>:</p>
+            
+            <div class="link-example">
+                <div class="label">📄 Visa sida (GitHub Pages) - Den färdiga webbsidan med styling</div>
+                <a href="https://lundgren9.github.io/Simrishamn/GitHub.html">https://lundgren9.github.io/Simrishamn/GitHub.html</a>
+            </div>
+            
+            <div class="link-example">
+                <div class="label">💻 Källkod (GitHub) - HTML-koden bakom sidan</div>
+                <a href="https://github.com/lundgren9/Simrishamn/blob/main/GitHub.html">https://github.com/lundgren9/Simrishamn/blob/main/GitHub.html</a>
+            </div>
+            
+            <p style="margin-top: 1rem;"><strong>Varför är detta användbart?</strong></p>
+            <ul style="color: var(--text-secondary); margin-left: 1.5rem;">
+                <li><strong>Visa sida</strong> – För att använda innehållet, läsa dokumentation</li>
+                <li><strong>Källkod</strong> – För att se hur sidan är byggd, kopiera kod, eller föreslå ändringar</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <!-- =============================================
+         FOOTER
+         ============================================= -->
+    <footer>
+        <p>
+            Senast uppdaterad: Januari 2026 | 
+            Repository: <a href="https://github.com/lundgren9/Simrishamn" target="_blank">github.com/lundgren9/Simrishamn</a>
+        </p>
+    </footer>
+</body>
+</html>
