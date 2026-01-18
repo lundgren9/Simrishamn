@@ -1017,6 +1017,91 @@ git add filnamn.txt</code>
         <!-- ===================== VANLIGA PROBLEM ===================== -->
         <h2>4. Vanliga problem och lösningar</h2>
         
+        <!-- ===== UPPDATERING 18 jan 2026: Nested git repos ===== -->
+        <h3>⚠️ Git inne i Git - "Nested repositories"</h3>
+        
+        <p>Ett vanligt misstag är att klona ett repo <strong>inne i</strong> ett annat repo. Detta skapar problem!</p>
+        
+        <h4>Vad händer?</h4>
+        <p>Om du står i ett Git-repo och kör <code>git clone</code> skapas en ny mapp med <strong>sin egen .git-mapp</strong>:</p>
+        
+        <div class="command-box" style="background: #1a1a2e;">
+            <code><span class="comment"># Du står i Simrishamn (ett Git-repo)</span><br>
+<span style="color: var(--accent-red);">git clone https://github.com/user/annat-repo.git</span><br><br>
+<span class="comment"># Resultat: En "nested" struktur</span><br>
+Simrishamn/           ← Git-repo (.git)<br>
+└── annat-repo/       <br>
+    └── <span style="color: var(--accent-red);">.git/</span>        ← <span style="color: var(--accent-red);">ÄNNU ETT Git-repo! (konflikt!)</span><br>
+    └── index.html</code>
+        </div>
+        
+        <h4>Varför är det ett problem?</h4>
+        <ul>
+            <li>Det yttre repot (Simrishamn) "ser" inte filerna i den inre mappen ordentligt</li>
+            <li>När du kör <code>git add .</code> i Simrishamn läggs inte filerna från det inre repot till</li>
+            <li>Mappen kan visas som en "submodule" eller ignoreras helt</li>
+            <li>Du kan pusha till det yttre repot, men mapp 3 dyker aldrig upp på GitHub!</li>
+        </ul>
+        
+        <h4>Hur upptäcker du problemet?</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Kolla om det finns en .git-mapp i undermappen</span><br>
+Get-ChildItem -Path "3" -Force<br><br>
+<span class="comment"># Om du ser en .git-mapp → Du har nested repos!</span><br>
+<span class="comment"># Mode                 Name</span><br>
+<span class="comment"># ----                 ----</span><br>
+<span style="color: var(--accent-red);"># d--h--               .git</span>         ← <span style="color: var(--accent-red);">PROBLEMET!</span><br>
+<span class="comment"># -a----               index.html</span></code>
+        </div>
+        
+        <h4>Lösning: Ta bort den inre .git-mappen</h4>
+        
+        <div class="command-box">
+            <code><span class="comment"># Steg 1: Ta bort .git-mappen i undermappen</span><br>
+Remove-Item -Path "3\.git" -Recurse -Force<br><br>
+<span class="comment"># Steg 2: Verifiera att den är borta</span><br>
+Get-ChildItem -Path "3" -Force<br><br>
+<span class="comment"># Steg 3: Nu kan du lägga till filerna normalt</span><br>
+git add .<br>
+git commit -m "Lägger till mapp 3"<br>
+git push origin main</code>
+        </div>
+        
+        <div class="tip">
+            <p><strong>Efter fix:</strong> Strukturen blir korrekt:</p>
+            <div class="command-box">
+                <code>Simrishamn/           ← Git-repo (.git)<br>
+└── 3/                <br>
+    └── index.html    ← <span style="color: var(--accent-green);">Nu spåras av Simrishamn-repot!</span></code>
+            </div>
+        </div>
+        
+        <h4>Hur undvika detta i framtiden?</h4>
+        
+        <table>
+            <tr>
+                <th>Om du vill...</th>
+                <th>Gör så här</th>
+            </tr>
+            <tr>
+                <td>Kopiera filer från ett annat repo till ditt</td>
+                <td>Klona repot <strong>utanför</strong> ditt repo, kopiera filerna manuellt, ta <strong>inte</strong> med .git-mappen</td>
+            </tr>
+            <tr>
+                <td>Ha ett repo som "sub-projekt" inne i ett annat</td>
+                <td>Använd <code>git submodule</code> (avancerat, rekommenderas ej för nybörjare)</td>
+            </tr>
+            <tr>
+                <td>Bara skapa en ny mapp med filer</td>
+                <td>Skapa mappen manuellt: <code>mkdir 3</code>, lägg till filer, committa</td>
+            </tr>
+        </table>
+        
+        <div class="warning">
+            <p><strong>Tumregel:</strong> Klona aldrig ett repo inne i ett annat repo om du inte vet exakt vad du gör!</p>
+        </div>
+        
         <h3>Konflikt vid pull</h3>
         <div class="warning">
             <p><strong>Problem:</strong> Du får felmeddelande om konflikter när du kör <code>git pull</code></p>
