@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badsäsong Simrishamn 2025 - Slutsaldo per dag</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        select, input[type="date"], button {
+            padding: 8px 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        select:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: 2px solid #2563eb;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .chart-container {
+            padding: 30px;
+            height: 600px;
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+
+        .stat-card.positive {
+            border-left-color: #10b981;
+        }
+
+        .stat-card.negative {
+            border-left-color: #ef4444;
+        }
+
+        .stat-card.neutral {
+            border-left-color: #6b7280;
+        }
+
+        .stat-card.info {
+            border-left-color: #3b82f6;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-subtitle {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .season-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 30px;
+        }
+
+        .season-info h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .season-info ul {
+            color: #92400e;
+            margin-left: 20px;
+        }
+
+        .season-info li {
+            margin-bottom: 5px;
+        }
+
+        .extreme-changes {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 30px;
+        }
+
+        .extreme-changes h3 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .chart-container {
+                height: 400px;
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏊‍♂️ Badsäsong Simrishamn 2025</h1>
+            <p>Slutsaldo per dag - Konto 2880 och 2881 obalanser</p>
+            <p><em>Visar endast slutsaldo per dag (ej intradag-förändringar)</em></p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="periodSelect">📅 Period:</label>
+                <select id="periodSelect">
+                    <option value="all">Hela säsongen</option>
+                    <option value="spring">Vinter/Vår (Jan-Maj)</option>
+                    <option value="summer">Sommar (Jun-Aug)</option>
+                    <option value="fall">Höst (Sep)</option>
+                    <option value="q2">Q2 - Juni-Juli</option>
+                    <option value="q3">Q3 - Augusti</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="fromDate">Från:</label>
+                <input type="date" id="fromDate" value="2025-01-07">
+            </div>
+            
+            <div class="control-group">
+                <label for="toDate">Till:</label>
+                <input type="date" id="toDate" value="2025-09-12">
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="showZeroLine" checked> 
+                    Visa noll-linje
+                </label>
+            </div>
+            
+            <button onclick="updateChart()">🔄 Uppdatera diagram</button>
+        </div>
+
+        <div class="season-info">
+            <h3>📚 Förklaring av kontosystemet:</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div style="background: #e0f2fe; border: 1px solid #0284c7; border-radius: 6px; padding: 15px;">
+                    <h4 style="color: #0c4a6e; margin-bottom: 10px;">🏪 Konto 2881 - Avräkning kassa KoF</h4>
+                    <ul style="color: #0c4a6e; margin-left: 15px; font-size: 14px;">
+                        <li><strong>Funktion:</strong> Kassaregistrering på badanläggningarna</li>
+                        <li><strong>När:</strong> Bokförs när kunder betalar på badet</li>
+                        <li><strong>Kontering:</strong> DEBITERAS när pengar kommer in i kassan</li>
+                        <li><strong>Innehåller:</strong> Alla kassatransaktioner med aktivitetskoder (kort, Swish, klippkort)</li>
+                        <li><strong>Exempel:</strong> Kund betalar 50 kr → Debet konto 2881</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #fef3c7; border: 1px solid #d97706; border-radius: 6px; padding: 15px;">
+                    <h4 style="color: #92400e; margin-bottom: 10px;">🏦 Konto 2880 - Avräkning baden</h4>
+                    <ul style="color: #92400e; margin-left: 15px; font-size: 14px;">
+                        <li><strong>Funktion:</strong> Dagbokföring för bankinsättningar</li>
+                        <li><strong>När:</strong> Bokförs när pengar ska sättas in på kommunens bank</li>
+                        <li><strong>Kontering:</strong> KREDITERAS mot bankkonto (debet)</li>
+                        <li><strong>Innehåller:</strong> Samlade betalningar, ofta utan aktivitetskoder</li>
+                        <li><strong>Exempel:</strong> Bankinsättning 5000 kr → Kredit konto 2880, Debet bankkonto</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+                <h4 style="color: #15803d; margin-bottom: 10px;">⚖️ Normal balansering:</h4>
+                <p style="color: #15803d; margin: 0; font-size: 14px;">
+                    <strong>Normalt flöde:</strong> Konto 2881 debiteras (kassainkomst) → Konto 2880 krediteras (bankinsättning). 
+                    Över tid ska dessa konton balansera varandra = summan blir noll.
+                </p>
+            </div>
+
+            <h4 style="color: #dc2626; margin-bottom: 10px;">🚨 Identifierad obalans i data:</h4>
+            <ul style="margin-left: 20px;">
+                <li><strong>Januari:</strong> Start på -480 kr (liten negativ balans)</li>
+                <li><strong>Mars:</strong> Kraftigt negativ till -71,880 kr, sedan stor återhämtning till +100,120 kr</li>
+                <li><strong>April-Maj:</strong> Hög positiv balans ~+171,520 kr, sedan fall till negativ</li>
+                <li><strong>Juni:</strong> Volatil period med stora svängningar (+/-)</li>
+                <li><strong>Juli:</strong> Kraftigt negativ utveckling till -474,806 kr (årets lägsta)</li>
+                <li><strong>Augusti:</strong> Återhämtning men fortfarande negativ</li>
+                <li><strong>September:</strong> Slutar på -31,477 kr (betydande obalans)</li>
+            </ul>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="saldoChart"></canvas>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card info">
+                <div class="stat-title">📅 Aktiva dagar</div>
+                <div class="stat-value" id="activeDays">106</div>
+                <div class="stat-subtitle">dagar med registrerade saldon</div>
+            </div>
+            
+            <div class="stat-card positive" id="maxSaldoCard">
+                <div class="stat-title">📈 Högsta saldo</div>
+                <div class="stat-value" id="maxSaldo">+172,395 kr</div>
+                <div class="stat-subtitle" id="maxSaldoDate">23 maj 2025</div>
+            </div>
+            
+            <div class="stat-card negative" id="minSaldoCard">
+                <div class="stat-title">📉 Lägsta saldo</div>
+                <div class="stat-value" id="minSaldo">-474,806 kr</div>
+                <div class="stat-subtitle" id="minSaldoDate">31 juli 2025</div>
+            </div>
+            
+            <div class="stat-card negative">
+                <div class="stat-title">🎯 Slutsaldo</div>
+                <div class="stat-value" id="finalSaldo">-31,477 kr</div>
+                <div class="stat-subtitle" id="finalDate">7 september 2025</div>
+            </div>
+            
+            <div class="stat-card neutral">
+                <div class="stat-title">📊 Total spridning</div>
+                <div class="stat-value" id="totalRange">647,201 kr</div>
+                <div class="stat-subtitle">från lägsta till högsta</div>
+            </div>
+            
+            <div class="stat-card negative">
+                <div class="stat-title">⚖️ Obalans status</div>
+                <div class="stat-value">KRITISK ⚠️</div>
+                <div class="stat-subtitle">Stor avvikelse från noll</div>
+            </div>
+        </div>
+
+        <div class="extreme-changes">
+            <h3>💳 IDENTIFIERAD ORSAK TILL OBALANS: Swish-betalningar</h3>
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <h4 style="color: #856404; margin-bottom: 10px;">🔍 Analys av Swish-transaktioner:</h4>
+                <ul style="color: #856404; margin-left: 20px;">
+                    <li><strong>21 juli 2025:</strong> Stor Swish-kreditering 39,246 kr på konto 2880</li>
+                    <li><strong>Problem:</strong> Ingen motsvarande kassakontering på konto 2881</li>
+                    <li><strong>Totalt Swish-netto:</strong> -47,710 kr kredit över hela säsongen</li>
+                    <li><strong>Slutlig obalans:</strong> -31,477 kr (Swish-problem är trolig huvudorsak)</li>
+                </ul>
+            </div>
+            
+            <h4 style="color: #dc2626; margin-bottom: 10px;">📋 Alternativa rättelseförslag:</h4>
+            <div style="background: #f0f9ff; border: 1px solid #7dd3fc; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <h5 style="color: #0c4a6e; margin-bottom: 15px;">🔄 ALTERNATIV 1: Registrera saknade kassaintäkter</h5>
+                <p style="color: #0c4a6e; margin-bottom: 10px; font-size: 14px;"><strong>Antagande:</strong> Swish-krediteringen 21 juli var korrekt, men kassaregistreringen saknades.</p>
+                <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 12px; margin-bottom: 10px;">
+                    <tr style="background: #e0f2fe;">
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: left;">Ansvar</th>
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: left;">Konto</th>
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: left;">Verksamhet</th>
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: left;">Aktivitet</th>
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: left;">Objekt</th>
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: left;">Motpart</th>
+                        <th style="border: 1px solid #7dd3fc; padding: 8px; text-align: right;">Belopp</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">40100</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px; background: #dcfce7;"><strong>2881</strong></td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">-</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">350</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">30013</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">860</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px; text-align: right; background: #dcfce7;"><strong>+31,476.67</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">40100</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px; background: #fef3c7;"><strong>3011</strong></td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">3400</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">-</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">30013</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px;">860</td>
+                        <td style="border: 1px solid #7dd3fc; padding: 4px; text-align: right; background: #fef3c7;"><strong>-31,476.67</strong></td>
+                    </tr>
+                </table>
+                <p style="color: #0c4a6e; font-size: 12px;">
+                    <strong>Effekt:</strong> Registrerar Swish-intäkter korrekt i kassan och intäktskonto
+                </p>
+            </div>
+
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <h5 style="color: #92400e; margin-bottom: 15px;">🔄 ALTERNATIV 2A: Reversera felaktig Swish-kreditering (hela beloppet)</h5>
+                <p style="color: #92400e; margin-bottom: 10px; font-size: 14px;"><strong>Antagande:</strong> Swish-krediteringen 21 juli (39,246 kr) var felaktig och ska reverseras helt.</p>
+                <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 12px; margin-bottom: 10px;">
+                    <tr style="background: #fef9e6;">
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: left;">Ansvar</th>
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: left;">Konto</th>
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: left;">Verksamhet</th>
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: left;">Aktivitet</th>
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: left;">Objekt</th>
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: left;">Motpart</th>
+                        <th style="border: 1px solid #f59e0b; padding: 8px; text-align: right;">Belopp</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">40100</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px; background: #fed7aa;"><strong>2880</strong></td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">-</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">?</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">?</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">860</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px; text-align: right; background: #fed7aa;"><strong>+39,246.00</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">40100</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px; background: #fde68a;"><strong>2xxx</strong></td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">-</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">-</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">?</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px;">860</td>
+                        <td style="border: 1px solid #f59e0b; padding: 4px; text-align: right; background: #fde68a;"><strong>-39,246.00</strong></td>
+                    </tr>
+                </table>
+                <p style="color: #92400e; font-size: 12px;">
+                    <strong>Effekt:</strong> Tar bort felaktig Swish-kreditering och flyttar till balanskonto/skuldkonto
+                </p>
+            </div>
+
+            <div style="background: #fef2f2; border: 1px solid #fca5a5; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <h5 style="color: #7f1d1d; margin-bottom: 15px;">🔄 ALTERNATIV 2B: Partiell reversering (bara obalansen)</h5>
+                <p style="color: #7f1d1d; margin-bottom: 10px; font-size: 14px;"><strong>Antagande:</strong> Del av Swish-krediteringen var korrekt, men 31,476.67 kr var felaktig.</p>
+                <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 12px; margin-bottom: 10px;">
+                    <tr style="background: #fef2f2;">
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: left;">Ansvar</th>
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: left;">Konto</th>
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: left;">Verksamhet</th>
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: left;">Aktivitet</th>
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: left;">Objekt</th>
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: left;">Motpart</th>
+                        <th style="border: 1px solid #fca5a5; padding: 8px; text-align: right;">Belopp</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">40100</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px; background: #fecaca;"><strong>2880</strong></td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">-</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">?</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">?</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">860</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px; text-align: right; background: #fecaca;"><strong>+31,476.67</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">40100</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px; background: #fed7d7;"><strong>2xxx</strong></td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">-</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">-</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">?</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px;">860</td>
+                        <td style="border: 1px solid #fca5a5; padding: 4px; text-align: right; background: #fed7d7;"><strong>-31,476.67</strong></td>
+                    </tr>
+                </table>
+                <p style="color: #7f1d1d; font-size: 12px;">
+                    <strong>Effekt:</strong> Korrigerar bara den del som orsakar obalans, lämnar resten av transaktionen intakt
+                </p>
+            </div>
+
+            <div style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 15px; border-radius: 6px;">
+                <h5 style="color: #374151; margin-bottom: 10px;">🤔 Vilken rättelse ska väljas?</h5>
+                <ul style="color: #374151; margin-left: 20px; font-size: 14px;">
+                    <li><strong>Alternativ 1:</strong> Välj om Swish-betalningen var korrekt men inte registrerad i kassan</li>
+                    <li><strong>Alternativ 2A:</strong> Välj om hela Swish-transaktionen 21 juli var felaktig</li>
+                    <li><strong>Alternativ 2B:</strong> Välj om bara delen som orsakar obalans var felaktig</li>
+                    <li><strong>Utredning behövs:</strong> Kontrollera originalverifikation för 21 juli och Swish-transaktioner</li>
+                </ul>
+            </div>
+            
+            <h4 style="color: #dc2626; margin-top: 15px; margin-bottom: 10px;">⚡ Övriga extrema förändringar:</h4>
+            <ul>
+                <li><strong>Mars-korrigering:</strong> +172,000 kr (11 mar → 31 mar 2025)</li>
+                <li><strong>Juni-volatilitet:</strong> Flera förändringar över ±50,000 kr</li>
+                <li><strong>Juli-kollaps:</strong> -156,882 kr (18 jul → 21 jul 2025) - <em>Inkl. Swish-problemet</em></li>
+                <li><strong>Augusti-återhämtning:</strong> +443,941 kr (31 jul → 1 aug 2025)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Verklig saldo-data från användaren (slutsaldo per dag)
+        const realSaldoData = [
+            { datum: '2025-01-07', saldo: -480.00 },
+            { datum: '2025-03-04', saldo: -31280.00 },
+            { datum: '2025-03-05', saldo: -42480.00 },
+            { datum: '2025-03-06', saldo: -53680.00 },
+            { datum: '2025-03-07', saldo: -64180.00 },
+            { datum: '2025-03-10', saldo: -71180.00 },
+            { datum: '2025-03-11', saldo: -71880.00 },
+            { datum: '2025-03-31', saldo: 100120.00 },
+            { datum: '2025-04-01', saldo: 171520.00 },
+            { datum: '2025-04-08', saldo: 171520.00 },
+            { datum: '2025-04-30', saldo: 171520.00 },
+            { datum: '2025-05-08', saldo: 171520.00 },
+            { datum: '2025-05-23', saldo: 172395.00 },
+            { datum: '2025-05-26', saldo: 171520.00 },
+            { datum: '2025-05-31', saldo: -480.00 },
+            { datum: '2025-06-03', saldo: -480.00 },
+            { datum: '2025-06-05', saldo: -1090.00 },
+            { datum: '2025-06-06', saldo: -1090.00 },
+            { datum: '2025-06-09', saldo: -1975.00 },
+            { datum: '2025-06-10', saldo: -2830.00 },
+            { datum: '2025-06-11', saldo: -2805.00 },
+            { datum: '2025-06-12', saldo: -1945.00 },
+            { datum: '2025-06-13', saldo: -2655.00 },
+            { datum: '2025-06-14', saldo: 69479.18 },
+            { datum: '2025-06-15', saldo: 106258.11 },
+            { datum: '2025-06-16', saldo: 43180.29 },
+            { datum: '2025-06-17', saldo: 30697.80 },
+            { datum: '2025-06-18', saldo: 33707.48 },
+            { datum: '2025-06-19', saldo: 29515.99 },
+            { datum: '2025-06-20', saldo: 36677.17 },
+            { datum: '2025-06-21', saldo: 87286.17 },
+            { datum: '2025-06-22', saldo: 116318.90 },
+            { datum: '2025-06-23', saldo: 16029.25 },
+            { datum: '2025-06-24', saldo: -3001.74 },
+            { datum: '2025-06-25', saldo: -3815.53 },
+            { datum: '2025-06-26', saldo: 6931.82 },
+            { datum: '2025-06-27', saldo: -6931.47 },
+            { datum: '2025-06-28', saldo: 4724.56 },
+            { datum: '2025-06-29', saldo: 23516.42 },
+            { datum: '2025-06-30', saldo: 4195.51 },
+            { datum: '2025-07-01', saldo: 11824.78 },
+            { datum: '2025-07-02', saldo: 19703.29 },
+            { datum: '2025-07-03', saldo: -25250.50 },
+            { datum: '2025-07-04', saldo: -22881.07 },
+            { datum: '2025-07-05', saldo: -20653.39 },
+            { datum: '2025-07-06', saldo: -11867.86 },
+            { datum: '2025-07-07', saldo: -25420.83 },
+            { datum: '2025-07-08', saldo: -18306.96 },
+            { datum: '2025-07-09', saldo: -19639.95 },
+            { datum: '2025-07-10', saldo: -47017.86 },
+            { datum: '2025-07-11', saldo: -97006.03 },
+            { datum: '2025-07-12', saldo: -93155.21 },
+            { datum: '2025-07-14', saldo: -122516.85 },
+            { datum: '2025-07-15', saldo: -110282.84 },
+            { datum: '2025-07-16', saldo: -134316.34 },
+            { datum: '2025-07-17', saldo: -110746.62 },
+            { datum: '2025-07-18', saldo: -144463.50 },
+            { datum: '2025-07-21', saldo: -301345.50 },
+            { datum: '2025-07-22', saldo: -340615.50 },
+            { datum: '2025-07-23', saldo: -319584.06 },
+            { datum: '2025-07-24', saldo: -346189.37 },
+            { datum: '2025-07-25', saldo: -380267.37 },
+            { datum: '2025-07-28', saldo: -438607.37 },
+            { datum: '2025-07-29', saldo: -447494.04 },
+            { datum: '2025-07-30', saldo: -471353.04 },
+            { datum: '2025-07-31', saldo: -474806.04 },
+            { datum: '2025-08-01', saldo: -30864.97 },
+            { datum: '2025-08-02', saldo: -14869.46 },
+            { datum: '2025-08-03', saldo: -7792.46 },
+            { datum: '2025-08-04', saldo: -45249.52 },
+            { datum: '2025-08-05', saldo: -41010.55 },
+            { datum: '2025-08-06', saldo: -49121.71 },
+            { datum: '2025-08-07', saldo: -47950.23 },
+            { datum: '2025-08-08', saldo: -30183.34 },
+            { datum: '2025-08-09', saldo: -8683.82 },
+            { datum: '2025-08-10', saldo: 3239.14 },
+            { datum: '2025-08-11', saldo: -41121.71 },
+            { datum: '2025-08-12', saldo: -31695.60 },
+            { datum: '2025-08-13', saldo: -22443.04 },
+            { datum: '2025-08-14', saldo: -17126.55 },
+            { datum: '2025-08-15', saldo: -8821.57 },
+            { datum: '2025-08-16', saldo: 9955.44 },
+            { datum: '2025-08-17', saldo: 30437.86 },
+            { datum: '2025-08-18', saldo: -37088.32 },
+            { datum: '2025-08-19', saldo: -38882.85 },
+            { datum: '2025-08-20', saldo: -37707.59 },
+            { datum: '2025-08-21', saldo: -39933.60 },
+            { datum: '2025-08-22', saldo: -40147.75 },
+            { datum: '2025-08-23', saldo: -39142.92 },
+            { datum: '2025-08-24', saldo: -36150.59 },
+            { datum: '2025-08-25', saldo: -41583.41 },
+            { datum: '2025-08-26', saldo: -40085.94 },
+            { datum: '2025-08-27', saldo: -40836.44 },
+            { datum: '2025-08-28', saldo: -41693.78 },
+            { datum: '2025-08-29', saldo: -41386.12 },
+            { datum: '2025-08-30', saldo: -20257.30 },
+            { datum: '2025-08-31', saldo: -17492.79 },
+            { datum: '2025-09-01', saldo: -20513.31 },
+            { datum: '2025-09-02', saldo: -21686.80 },
+            { datum: '2025-09-03', saldo: -20433.65 },
+            { datum: '2025-09-04', saldo: -27270.41 },
+            { datum: '2025-09-05', saldo: -28798.46 },
+            { datum: '2025-09-06', saldo: -26949.16 },
+            { datum: '2025-09-07', saldo: -31476.67 },
+            { datum: '2025-09-08', saldo: -31044.16 },
+            { datum: '2025-09-12', saldo: -31824.16 }
+        ];
+
+        // Global variabler
+        let chart = null;
+
+        // Formattering funktioner
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('sv-SE', {
+                style: 'currency',
+                currency: 'SEK',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('sv-SE', { 
+                month: 'short', 
+                day: 'numeric'
+            });
+        }
+
+        // Filtrera data baserat på period
+        function filterDataByPeriod(data) {
+            const period = document.getElementById('periodSelect').value;
+            const fromDate = new Date(document.getElementById('fromDate').value);
+            const toDate = new Date(document.getElementById('toDate').value);
+            
+            let filtered = data;
+            
+            if (period === 'spring') {
+                filtered = data.filter(day => {
+                    const date = new Date(day.datum);
+                    const month = date.getMonth();
+                    return month <= 4; // Jan-Maj
+                });
+            } else if (period === 'summer') {
+                filtered = data.filter(day => {
+                    const date = new Date(day.datum);
+                    const month = date.getMonth();
+                    return month >= 5 && month <= 7; // Jun-Aug
+                });
+            } else if (period === 'fall') {
+                filtered = data.filter(day => {
+                    const date = new Date(day.datum);
+                    const month = date.getMonth();
+                    return month >= 8; // Sep och framåt
+                });
+            } else if (period === 'q2') {
+                filtered = data.filter(day => {
+                    const date = new Date(day.datum);
+                    const month = date.getMonth();
+                    return month >= 5 && month <= 6; // Jun-Jul
+                });
+            } else if (period === 'q3') {
+                filtered = data.filter(day => {
+                    const date = new Date(day.datum);
+                    const month = date.getMonth();
+                    return month === 7; // Augusti
+                });
+            } else {
+                // Använd från/till datum
+                filtered = data.filter(day => {
+                    const date = new Date(day.datum);
+                    return date >= fromDate && date <= toDate;
+                });
+            }
+            
+            return filtered;
+        }
+
+        // Skapa/uppdatera diagram
+        function createChart(data) {
+            const ctx = document.getElementById('saldoChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const filtered = filterDataByPeriod(data);
+            
+            const labels = filtered.map(day => formatDate(day.datum));
+            const saldoData = filtered.map(day => day.saldo);
+            
+            // Hitta index för 21 juli 2025
+            const juli21Index = filtered.findIndex(day => day.datum === '2025-07-21');
+            
+            // Skapa special styling för 21 juli
+            const pointColors = saldoData.map((_, index) => 
+                index === juli21Index ? '#dc2626' : '#2563eb'
+            );
+            const pointRadius = saldoData.map((_, index) => 
+                index === juli21Index ? 8 : 3
+            );
+            const pointHoverRadius = saldoData.map((_, index) => 
+                index === juli21Index ? 12 : 5
+            );
+            
+            const datasets = [{
+                label: 'Slutsaldo per dag (kr)',
+                data: saldoData,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: pointColors,
+                pointBorderColor: pointColors,
+                pointRadius: pointRadius,
+                pointHoverRadius: pointHoverRadius,
+                pointBorderWidth: 2,
+                tension: 0.1,
+                fill: true
+            }];
+            
+            // Lägg till noll-linje om vald
+            if (document.getElementById('showZeroLine').checked) {
+                datasets.push({
+                    label: 'Noll-linje (balanserat)',
+                    data: new Array(saldoData.length).fill(0),
+                    borderColor: '#dc2626',
+                    borderWidth: 2,
+                    borderDash: [8, 4],
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0
+                });
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Saldoutveckling - Slutsaldo per dag (Konto 2880 + 2881)',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const index = tooltipItems[0].dataIndex;
+                                    return filtered[index].datum;
+                                },
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const currentDate = filtered[index].datum;
+                                    const datasetIndex = context.datasetIndex;
+                                    
+                                    // Bara visa special-tooltip för första datasetet (main data)
+                                    // och hoppa över noll-linjen (dataset index 1)
+                                    if (datasetIndex !== 0) {
+                                        return context.dataset.label + ': ' + context.formattedValue;
+                                    }
+                                    
+                                    // För 21 juli, visa allt i en array (bara för första datasetet)
+                                    if (currentDate === '2025-07-21') {
+                                        return [
+                                            `Slutsaldo: ${formatCurrency(context.parsed.y)}`,
+                                            '',
+                                            '🚨 KRITISK DAG - Identifierad obalansorsak:',
+                                            '💳 Stor Swish-kreditering: 39,246 kr på konto 2880',
+                                            '❌ Saknar motsvarande kassakontering på konto 2881',
+                                            '⚖️ Detta skapar permanent obalans mellan kontona',
+                                            '',
+                                            '📋 Rekommenderad åtgärd:',
+                                            '   Debitera konto 2881 (registrera Swish-intäkt)',
+                                            '   Kreditera intäktskonto 3011'
+                                        ];
+                                    }
+                                    
+                                    // För andra datum
+                                    let result = [`Slutsaldo: ${formatCurrency(context.parsed.y)}`];
+                                    if (index > 0) {
+                                        const förändring = filtered[index].saldo - filtered[index-1].saldo;
+                                        result.push(`Förändring: ${formatCurrency(förändring)}`);
+                                    }
+                                    return result;
+                                },
+                                afterLabel: function(context) {
+                                    // Returnera alltid tom sträng för att undvika dubbel text
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Datum'
+                            },
+                            ticks: {
+                                maxTicksLimit: 20
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Saldo (kr)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Uppdatera diagram
+        function updateChart() {
+            createChart(realSaldoData);
+            updateStats(filterDataByPeriod(realSaldoData));
+        }
+
+        // Uppdatera statistik
+        function updateStats(filtered) {
+            const saldon = filtered.map(d => d.saldo);
+            const maxSaldo = Math.max(...saldon);
+            const minSaldo = Math.min(...saldon);
+            
+            const maxIndex = saldon.indexOf(maxSaldo);
+            const minIndex = saldon.indexOf(minSaldo);
+            
+            document.getElementById('activeDays').textContent = filtered.length;
+            document.getElementById('maxSaldo').textContent = formatCurrency(maxSaldo);
+            document.getElementById('maxSaldoDate').textContent = formatDate(filtered[maxIndex].datum);
+            document.getElementById('minSaldo').textContent = formatCurrency(minSaldo);
+            document.getElementById('minSaldoDate').textContent = formatDate(filtered[minIndex].datum);
+            document.getElementById('finalSaldo').textContent = formatCurrency(filtered[filtered.length - 1].saldo);
+            document.getElementById('finalDate').textContent = formatDate(filtered[filtered.length - 1].datum);
+            document.getElementById('totalRange').textContent = formatCurrency(maxSaldo - minSaldo);
+        }
+
+        // Initialisering vid sidladdning
+        document.addEventListener('DOMContentLoaded', function() {
+            createChart(realSaldoData);
+            updateStats(realSaldoData);
+            
+            // Event listeners för kontroller
+            document.getElementById('periodSelect').addEventListener('change', updateChart);
+            document.getElementById('showZeroLine').addEventListener('change', updateChart);
+            document.getElementById('fromDate').addEventListener('change', updateChart);
+            document.getElementById('toDate').addEventListener('change', updateChart);
+        });
+    </script>
+</body>
+</html>
