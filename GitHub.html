@@ -256,10 +256,72 @@ gh auth status<br>
 <span class="comment"># (kräver GitHub CLI installerat)</span></code>
         </div>
         
-        <!-- ===== UPPDATERING 18 jan 2026: SSH host authenticity ===== -->
+        <!-- ===== UPPDATERING 18 jan 2026: SSH förklaring ===== -->
+        <h2>1e. SSH och GitHub - Detaljerad förklaring</h2>
+        
+        <p>Det finns <strong>två sätt</strong> att ansluta till GitHub:</p>
+        
+        <table>
+            <tr>
+                <th>Metod</th>
+                <th>URL-format</th>
+                <th>Autentisering</th>
+            </tr>
+            <tr>
+                <td><strong>HTTPS</strong></td>
+                <td><code>https://github.com/user/repo.git</code></td>
+                <td>Användarnamn + lösenord/token (sparas i Credential Manager)</td>
+            </tr>
+            <tr>
+                <td><strong>SSH</strong></td>
+                <td><code>git@github.com:user/repo.git</code></td>
+                <td>SSH-nycklar (ett nyckelpar på din dator)</td>
+            </tr>
+        </table>
+        
+        <h3>Vad gör kommandot <code>ssh -T git@github.com</code>?</h3>
+        
+        <p>Låt oss bryta ner kommandot:</p>
+        
+        <table>
+            <tr>
+                <th>Del</th>
+                <th>Betydelse</th>
+            </tr>
+            <tr>
+                <td><code>ssh</code></td>
+                <td><strong>S</strong>ecure <strong>Sh</strong>ell - ett protokoll för säker, krypterad kommunikation</td>
+            </tr>
+            <tr>
+                <td><code>-T</code></td>
+                <td>"Disable pseudo-terminal" - vi vill bara testa anslutningen, inte öppna en terminal</td>
+            </tr>
+            <tr>
+                <td><code>git</code></td>
+                <td>Användarnamnet vi ansluter som (alla GitHub-användare ansluter som "git")</td>
+            </tr>
+            <tr>
+                <td><code>@github.com</code></td>
+                <td>Servern vi ansluter till</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>Sammanfattning:</strong> Kommandot testar om din dator kan ansluta till GitHub via SSH och visar vilket konto du är autentiserad som.</p>
+        </div>
+        
+        <h3>När ska man använda detta kommando?</h3>
+        
+        <ul>
+            <li>✅ <strong>Testa om SSH fungerar</strong> mot GitHub</li>
+            <li>✅ <strong>Se vilket konto</strong> du är autentiserad som</li>
+            <li>✅ <strong>Felsöka</strong> när push/pull via SSH inte fungerar</li>
+            <li>✅ <strong>Första gången</strong> du sätter upp SSH-nycklar</li>
+        </ul>
+        
         <h3>⚠️ "The authenticity of host can't be established" - Vad betyder det?</h3>
         
-        <p>Första gången du ansluter via SSH till GitHub kan du få detta meddelande:</p>
+        <p>Första gången du kör kommandot får du detta meddelande:</p>
         
         <div class="command-box" style="background: #1a1a2e; border-color: var(--accent-orange);">
             <code style="color: var(--accent-orange);">The authenticity of host 'github.com (4.225.11.194)' can't be established.<br>
@@ -268,17 +330,93 @@ This key is not known by any other names.<br>
 Are you sure you want to continue connecting (yes/no/[fingerprint])?</code>
         </div>
         
-        <div class="tip">
-            <p><strong>🎉 Ingen panik!</strong> Detta är <strong>helt normalt</strong> och inte farligt.</p>
-            <p>Det betyder att din dator aldrig har anslutit till GitHub via SSH förut. SSH frågar helt enkelt: <em>"Jag känner inte igen denna server - litar du på den?"</em></p>
+        <h3>Varför får du denna fråga?</h3>
+        
+        <p>SSH har en säkerhetsfunktion för att skydda dig mot "man-in-the-middle"-attacker:</p>
+        
+        <ol>
+            <li><strong>Din dator har aldrig pratat med github.com via SSH förut</strong></li>
+            <li><strong>SSH vet inte om servern är äkta</strong> (någon kan försöka utge sig för att vara GitHub)</li>
+            <li><strong>SSH visar serverns "fingeravtryck"</strong> - en unik identifierare</li>
+            <li><strong>Du uppmanas verifiera</strong> att fingeravtrycket matchar GitHub:s officiella</li>
+        </ol>
+        
+        <div class="workflow">
+            <div class="workflow-title">🔐 Analogin: Som att verifiera ett ID-kort</div>
+            <p>Tänk dig att någon ringer och säger "Hej, jag är från GitHub". Du frågar: "Bevisa det!" De visar ett ID-kort med ett unikt nummer. Du jämför numret med GitHub:s officiella ID-nummer. Om det stämmer - du litar på dem!</p>
         </div>
         
-        <p><strong>Vad ska du göra?</strong></p>
+        <h3>Varför ska du svara "yes"?</h3>
+        
+        <p>Om fingeravtrycket matchar GitHub:s officiella (se tabellen nedan) är det säkert att svara <code>yes</code> eftersom:</p>
+        
         <ol>
-            <li><strong>Verifiera fingeravtrycket</strong> – Jämför med GitHub:s officiella fingerprints (se nedan)</li>
-            <li><strong>Svara <code>yes</code></strong> – Om fingeravtrycket stämmer</li>
-            <li><strong>Klart!</strong> – GitHub sparas i din "known_hosts" och du får inte frågan igen</li>
+            <li>✅ Du har verifierat att det verkligen är GitHub du pratar med</li>
+            <li>✅ SSH sparar fingeravtrycket i filen <code>~/.ssh/known_hosts</code></li>
+            <li>✅ Nästa gång du ansluter slipper du frågan - SSH känner igen servern</li>
+            <li>✅ Om någon försöker utge sig för GitHub i framtiden får du en VARNING</li>
         </ol>
+        
+        <div class="tip">
+            <p><strong>🎉 Ingen panik!</strong> Detta är <strong>helt normalt</strong> första gången.</p>
+            <p>Det är faktiskt ett tecken på att SSH fungerar och skyddar dig!</p>
+        </div>
+        
+        <h3>Vad händer efter att du svarat "yes"?</h3>
+        
+        <div class="command-box">
+            <code><span class="comment"># Om SSH-nycklar är konfigurerade:</span><br>
+Hi kentlundgren! You've successfully authenticated, but GitHub does not provide shell access.<br><br>
+<span class="comment"># Detta betyder:</span><br>
+<span class="comment"># ✅ SSH-anslutningen fungerar</span><br>
+<span class="comment"># ✅ Du är autentiserad som "kentlundgren"</span><br>
+<span class="comment"># ✅ "no shell access" är normalt - GitHub tillåter bara git-kommandon, inte inloggning</span></code>
+        </div>
+        
+        <div class="command-box">
+            <code><span class="comment"># Om SSH-nycklar INTE är konfigurerade:</span><br>
+git@github.com: Permission denied (publickey).<br><br>
+<span class="comment"># Detta betyder:</span><br>
+<span class="comment"># ❌ Du har inga SSH-nycklar uppsatta</span><br>
+<span class="comment"># ❌ Du kan inte använda SSH-metoden ännu</span><br>
+<span class="comment"># → Använd HTTPS istället, eller sätt upp SSH-nycklar</span></code>
+        </div>
+        
+        <h3>Hur hänger SSH ihop med Git och GitHub?</h3>
+        
+        <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <p style="text-align: center; margin-bottom: 1rem;"><strong>Översikt: Två vägar till samma mål</strong></p>
+            <pre style="color: var(--accent-blue); font-family: monospace; font-size: 0.85rem; line-height: 1.8; margin: 0;">
+┌─────────────────┐                              ┌─────────────────┐
+│   DIN DATOR     │                              │     GITHUB      │
+│   (Lokalt Git)  │                              │    (Remote)     │
+├─────────────────┤                              ├─────────────────┤
+│                 │      ┌──────────────┐        │                 │
+│  git push  ─────┼─────►│    HTTPS     │───────►│  lundgren9/     │
+│  git pull  ◄────┼──────│  (port 443)  │◄───────│  Simrishamn     │
+│                 │      │              │        │                 │
+│                 │      │ Credential   │        │                 │
+│                 │      │ Manager      │        │                 │
+│                 │      └──────────────┘        │                 │
+│                 │                              │                 │
+│                 │      ┌──────────────┐        │                 │
+│  git push  ─────┼─────►│     SSH      │───────►│                 │
+│  git pull  ◄────┼──────│  (port 22)   │◄───────│                 │
+│                 │      │              │        │                 │
+│                 │      │ SSH-nycklar  │        │                 │
+│                 │      │ known_hosts  │        │                 │
+│                 │      └──────────────┘        │                 │
+└─────────────────┘                              └─────────────────┘
+            </pre>
+        </div>
+        
+        <p><strong>Sammanfattning:</strong></p>
+        <ul>
+            <li><strong>HTTPS</strong> och <strong>SSH</strong> är bara två olika "vägar" för att kommunicera med GitHub</li>
+            <li>Båda gör samma sak (push, pull, clone) - bara autentiseringen skiljer sig</li>
+            <li><code>ssh -T git@github.com</code> testar SSH-vägen</li>
+            <li>Om du använder HTTPS behöver du inte SSH alls (och vice versa)</li>
+        </ul>
         
         <h3>GitHub:s officiella SSH-fingerprints</h3>
         <p>Dessa är de korrekta fingeravtrycken från GitHub (januari 2026):</p>
