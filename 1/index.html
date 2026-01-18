@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raindance Felsökningsrapport - 18 januari 2026</title>
+    <style>
+        /* ===========================================
+           CSS-STILAR FÖR FELSÖKNINGSRAPPORTEN
+           
+           Dokumentet använder CSS-variabler för att 
+           enkelt kunna byta färgtema. Layouten är 
+           responsiv och fungerar på både desktop och mobil.
+           =========================================== */
+        
+        /* --- CSS-variabler för färger och typsnitt --- */
+        :root {
+            --primary-color: #2c3e50;      /* Mörkblå för rubriker */
+            --secondary-color: #3498db;    /* Ljusblå för accenter */
+            --success-color: #27ae60;      /* Grön för "fungerar" */
+            --error-color: #e74c3c;        /* Röd för "fungerar inte" */
+            --warning-color: #f39c12;      /* Orange för varningar */
+            --bg-color: #f8f9fa;           /* Ljusgrå bakgrund */
+            --card-bg: #ffffff;            /* Vit bakgrund för kort */
+            --text-color: #333333;         /* Mörkgrå text */
+            --border-color: #dee2e6;       /* Ljusgrå kantlinje */
+            --code-bg: #f4f4f4;            /* Bakgrund för kod */
+        }
+
+        /* --- Grundläggande stilar för hela sidan --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 20px;
+        }
+
+        /* --- Container som centrerar innehållet --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        /* --- Huvudrubrik --- */
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        /* --- Underrubriker --- */
+        h2 {
+            color: var(--primary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--secondary-color);
+            font-size: 1.3rem;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* --- Datumvisning under rubriken --- */
+        .date {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        /* --- Stycken --- */
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* --- Statusboxar för visuell indikering --- */
+        .status-box {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Röd box för "fungerar inte" */
+        .status-error {
+            background-color: #fdf2f2;
+            border-left: 4px solid var(--error-color);
+        }
+
+        /* Grön box för "fungerar" */
+        .status-success {
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--success-color);
+        }
+
+        /* Gul/orange box för varningar */
+        .status-warning {
+            background-color: #fffbeb;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        /* --- URL-förklaringstabell --- */
+        .url-breakdown {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .url-breakdown th,
+        .url-breakdown td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .url-breakdown th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Varannan rad får annan bakgrundsfärg för läsbarhet */
+        .url-breakdown tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .url-breakdown tr:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Monospace-typsnitt för URL-delar */
+        .url-breakdown code {
+            background-color: var(--code-bg);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: var(--error-color);
+        }
+
+        /* --- Kodblock för teknisk information --- */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        /* Färgkodning i kodblock */
+        .code-block .error {
+            color: #f48771;
+        }
+
+        .code-block .url {
+            color: #9cdcfe;
+        }
+
+        .code-block .comment {
+            color: #6a9955;
+        }
+
+        /* --- Slutsatsruta med bakgrund --- */
+        .conclusion-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .conclusion-box h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        /* --- Länkar --- */
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- Extern länksektion --- */
+        .links-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+
+        .links-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .links-section li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .links-section li:last-child {
+            border-bottom: none;
+        }
+
+        /* --- Emoji/ikoner i statusboxar --- */
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        /* --- Felsökningslista --- */
+        .troubleshoot-list {
+            margin: 15px 0;
+            padding-left: 0;
+        }
+
+        .troubleshoot-list li {
+            padding: 10px 15px;
+            margin: 8px 0;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .troubleshoot-list .check {
+            color: var(--success-color);
+        }
+
+        .troubleshoot-list .cross {
+            color: var(--error-color);
+        }
+
+        /* --- Knapp för att växla version --- */
+        .version-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* --- Versionsetikett som visar aktuell version --- */
+        .version-label {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .version-it {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .version-colleague {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* --- Klass för att dölja innehåll --- */
+        .hidden {
+            display: none;
+        }
+
+        /* --- Infobanner längst upp --- */
+        .info-banner {
+            background-color: #dbeafe;
+            border: 1px solid #93c5fd;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        /* --- Kolleg-version: mer avslappnad stil --- */
+        .colleague-intro {
+            font-style: italic;
+            background-color: #fef9c3;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #eab308;
+        }
+
+        /* --- Teknisk detaljtabell för IT-versionen --- */
+        .tech-details {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .tech-details h4 {
+            color: #60a5fa;
+            margin-bottom: 15px;
+        }
+
+        .tech-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tech-details td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .tech-details td:first-child {
+            color: #94a3b8;
+            width: 40%;
+        }
+
+        .tech-details code {
+            color: #fbbf24;
+        }
+
+        /* --- Responsiv design för mobiler --- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            .url-breakdown th,
+            .url-breakdown td {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .toggle-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* --- Print-stilar --- */
+        @media print {
+            .version-toggle {
+                display: none;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- =============================================
+         HUVUDCONTAINER
+         
+         Innehåller all rapportinformation. Strukturen
+         är uppdelad i två versioner som kan växlas
+         med JavaScript.
+         ============================================= -->
+    <div class="container">
+        
+        <!-- Rubrik och datum (visas alltid) -->
+        <h1>
+            🖥️ Felsökningsrapport: Raindance
+            <span id="versionLabel" class="version-label version-it">IT-version</span>
+        </h1>
+        <p class="date">📅 Söndag 18 januari 2026 | Rapporterad av Kent Lundgren</p>
+
+        <!-- ===========================================
+             IT-VERSIONEN
+             
+             Teknisk och detaljerad information riktad
+             till IT-avdelningen med felkoder, URL-analys
+             och rekommendationer.
+             =========================================== -->
+        <div id="itVersion">
+            
+            <!-- Kort sammanfattning i en infobanner -->
+            <div class="info-banner">
+                <strong>Sammanfattning:</strong> Raindance SaaS-tjänsten (soskane.rdsaas.se) 
+                returnerar ERR_CONNECTION_RESET vid inloggningsförsök. Hypergene fungerar 
+                normalt, vilket indikerar att problemet är isolerat till Raindance/CGI:s 
+                molnplattform.
+            </div>
+
+            <!-- SEKTION 1: SLUTSATS -->
+            <h2>1. Slutsats</h2>
+            
+            <!-- Statusboxar som visar vad som fungerar/inte fungerar -->
+            <div class="status-box status-error">
+                <span class="icon">❌</span>
+                <div>
+                    <strong>Raindance</strong> – Kan inte nås. Servern återställer anslutningen.<br>
+                    <small>URL: https://soskane.rdsaas.se/rp/SSO/Saml?IDPUnit=100</small>
+                </div>
+            </div>
+
+            <div class="status-box status-success">
+                <span class="icon">✅</span>
+                <div>
+                    <strong>Hypergene</strong> – Fungerar normalt.<br>
+                    <small>Intern URL: https://srvsn176.simrishamn.int/hypergene/</small>
+                </div>
+            </div>
+
+            <!-- Slutsatsruta med gradient-bakgrund -->
+            <div class="conclusion-box">
+                <h3>🎯 Bedömning</h3>
+                <p>
+                    Problemet ligger troligen hos <strong>CGI:s molnplattform (rdsaas.se)</strong>, 
+                    inte hos användaren eller kommunens nätverk. Samma URL fungerade dagen innan 
+                    (17 januari 2026). Rekommenderar kontakt med CGI:s driftsupport.
+                </p>
+            </div>
+
+            <!-- SEKTION 2: URL-ANALYS -->
+            <h2>2. URL-struktur och förklaring</h2>
+            <p>
+                Inloggnings-URL:en till Raindance följer ett standardmönster för 
+                SAML-baserad Single Sign-On (SSO). Nedan förklaras varje del:
+            </p>
+
+            <!-- Tabell som bryter ner URL:en i sina beståndsdelar -->
+            <table class="url-breakdown">
+                <thead>
+                    <tr>
+                        <th>URL-del</th>
+                        <th>Värde</th>
+                        <th>Teknisk förklaring</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Protokoll</td>
+                        <td><code>https://</code></td>
+                        <td>HyperText Transfer Protocol Secure – krypterad anslutning via TLS/SSL</td>
+                    </tr>
+                    <tr>
+                        <td>Subdomän</td>
+                        <td><code>soskane</code></td>
+                        <td>Regional instans för <strong>Södra Skåne</strong> – delad miljö för kommuner i regionen</td>
+                    </tr>
+                    <tr>
+                        <td>Domän</td>
+                        <td><code>rdsaas.se</code></td>
+                        <td><strong>R</strong>ain<strong>D</strong>ance <strong>S</strong>oftware-<strong>a</strong>s-<strong>a</strong>-<strong>S</strong>ervice – CGI:s molnplattform</td>
+                    </tr>
+                    <tr>
+                        <td>Sökväg</td>
+                        <td><code>/rp/</code></td>
+                        <td><strong>R</strong>aindance <strong>P</strong>ortal – webbportalen för användargränssnittet</td>
+                    </tr>
+                    <tr>
+                        <td>Sökväg</td>
+                        <td><code>/SSO/</code></td>
+                        <td><strong>S</strong>ingle <strong>S</strong>ign-<strong>O</strong>n – centraliserad autentiseringstjänst</td>
+                    </tr>
+                    <tr>
+                        <td>Endpoint</td>
+                        <td><code>/Saml</code></td>
+                        <td>SAML 2.0-protokoll för federerad identitetshantering</td>
+                    </tr>
+                    <tr>
+                        <td>Parameter</td>
+                        <td><code>?IDPUnit=100</code></td>
+                        <td><strong>I</strong>dentity <strong>P</strong>rovider <strong>Unit</strong> – kommunens unika ID-kod hos identitetsleverantören</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SEKTION 3: TEKNISKA DETALJER (endast IT-version) -->
+            <h2>3. Teknisk felanalys</h2>
+            
+            <!-- Mörk ruta med tekniska detaljer -->
+            <div class="tech-details">
+                <h4>📊 Feldiagnostik</h4>
+                <table>
+                    <tr>
+                        <td>Felkod:</td>
+                        <td><code>ERR_CONNECTION_RESET</code></td>
+                    </tr>
+                    <tr>
+                        <td>Betydelse:</td>
+                        <td>Servern avbröt TCP-anslutningen aktivt (RST-paket skickat)</td>
+                    </tr>
+                    <tr>
+                        <td>Rotdomän-test:</td>
+                        <td><code>Access denied</code> på soskane.rdsaas.se (normalt beteende)</td>
+                    </tr>
+                    <tr>
+                        <td>Senast fungerande:</td>
+                        <td>17 januari 2026 (dagen innan)</td>
+                    </tr>
+                    <tr>
+                        <td>Jämförelse:</td>
+                        <td>Hypergene (intern server) fungerar → VPN/nätverk OK</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Kodblock som visar felmeddelandena -->
+            <div class="code-block">
+                <span class="comment">// Försök 1: Inloggningssida</span><br>
+                GET <span class="url">https://soskane.rdsaas.se/rp/SSO/Saml?IDPUnit=100</span><br>
+                <span class="error">→ ERR_CONNECTION_RESET</span><br><br>
+                
+                <span class="comment">// Försök 2: Rotdomän</span><br>
+                GET <span class="url">https://soskane.rdsaas.se</span><br>
+                <span class="error">→ 403 Access Denied</span> <span class="comment">// Förväntat beteende</span>
+            </div>
+
+            <!-- SEKTION 4: FELSÖKNINGSSTEG -->
+            <h2>4. Genomförda felsökningssteg</h2>
+            
+            <ul class="troubleshoot-list">
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Test i Chrome (normal)</strong><br>
+                        <small>Resultat: ERR_CONNECTION_RESET</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Test i Chrome (inkognitoläge)</strong><br>
+                        <small>Resultat: ERR_CONNECTION_RESET – utesluter cache/cookies</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Test i Microsoft Edge</strong><br>
+                        <small>Resultat: ERR_CONNECTION_RESET – utesluter webbläsarspecifikt problem</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    <div>
+                        <strong>Test av Hypergene</strong><br>
+                        <small>Resultat: Fungerar – bekräftar att VPN/nätverksanslutning är OK</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Test av rotdomän (soskane.rdsaas.se)</strong><br>
+                        <small>Resultat: Access denied – förväntat beteende för SaaS-plattformar</small>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- SEKTION 5: REKOMMENDATIONER -->
+            <h2>5. Rekommenderade åtgärder</h2>
+            
+            <div class="status-box status-warning">
+                <span class="icon">⚡</span>
+                <div>
+                    <strong>Kontakta CGI Support</strong><br>
+                    <small>Undersök om det finns kända driftproblem med rdsaas.se-plattformen</small>
+                </div>
+            </div>
+
+            <p>
+                <strong>Förslag till IT-avdelningen:</strong>
+            </p>
+            <ul class="troubleshoot-list">
+                <li>
+                    <span class="icon">1️⃣</span>
+                    Kontrollera CGI:s driftstatussida för eventuella incidentrapporter
+                </li>
+                <li>
+                    <span class="icon">2️⃣</span>
+                    Verifiera att SAML-konfigurationen och certifikat inte har löpt ut
+                </li>
+                <li>
+                    <span class="icon">3️⃣</span>
+                    Testa åtkomst från kommunens interna nätverk (ej via VPN)
+                </li>
+                <li>
+                    <span class="icon">4️⃣</span>
+                    Kontrollera brandväggsloggar för blockerade anslutningar till rdsaas.se
+                </li>
+            </ul>
+
+        </div>
+        <!-- Slut på IT-versionen -->
+
+        <!-- ===========================================
+             KOLLEG-VERSIONEN
+             
+             Mer avslappnad och lättförståelig version
+             för ekonomer och controllers.
+             =========================================== -->
+        <div id="colleagueVersion" class="hidden">
+            
+            <!-- Personlig introduktion med avslappnad ton -->
+            <div class="colleague-intro">
+                "Trist när uppkopplingen inte fungerar... Det fungerade igår hemifrån, men 
+                inte idag. Ni vet hur det är – man ska bara fixa en 'liten sak' under 
+                helgen, och så tar det sådan tid bara för att komma in i systemet man 
+                behöver komma åt. 😅"
+            </div>
+
+            <!-- SEKTION 1: VAD SOM HÄNT -->
+            <h2>1. Vad har hänt?</h2>
+            
+            <div class="status-box status-error">
+                <span class="icon">❌</span>
+                <div>
+                    <strong>Raindance</strong> – Går inte att komma åt just nu<br>
+                    <small>Ekonomisystemet där vi hanterar bokföring, fakturor m.m.</small>
+                </div>
+            </div>
+
+            <div class="status-box status-success">
+                <span class="icon">✅</span>
+                <div>
+                    <strong>Hypergene</strong> – Fungerar som vanligt<br>
+                    <small>Beslutsstödsystemet för rapporter och uppföljning</small>
+                </div>
+            </div>
+
+            <p>
+                Det goda är att Hypergene fungerar, vilket betyder att min 
+                uppkoppling hemma är helt OK. Problemet verkar ligga hos 
+                <strong>leverantören CGI</strong> som driftar Raindance åt oss.
+            </p>
+
+            <!-- SEKTION 2: VAD BETYDER URL:EN -->
+            <h2>2. Vad betyder egentligen webbadressen?</h2>
+            
+            <p>
+                Har ni funderat på vad alla de där bokstäverna i webbadressen betyder? 
+                Här är en översättning:
+            </p>
+
+            <table class="url-breakdown">
+                <thead>
+                    <tr>
+                        <th>Del</th>
+                        <th>Vad det står</th>
+                        <th>Vad det betyder</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🔒 Säkerhet</td>
+                        <td><code>https://</code></td>
+                        <td>Säker, krypterad anslutning</td>
+                    </tr>
+                    <tr>
+                        <td>📍 Region</td>
+                        <td><code>soskane</code></td>
+                        <td><strong>Sö</strong>dra <strong>Skåne</strong> – vår regionala "ingång"</td>
+                    </tr>
+                    <tr>
+                        <td>☁️ Molntjänst</td>
+                        <td><code>rdsaas.se</code></td>
+                        <td><strong>R</strong>ain<strong>D</strong>ance som molntjänst (SaaS)</td>
+                    </tr>
+                    <tr>
+                        <td>🚪 Portal</td>
+                        <td><code>/rp/</code></td>
+                        <td><strong>R</strong>aindance <strong>P</strong>ortal – webbsidan</td>
+                    </tr>
+                    <tr>
+                        <td>🔑 Inloggning</td>
+                        <td><code>/SSO/Saml</code></td>
+                        <td>"Single Sign-On" – automatisk inloggning via kommunen</td>
+                    </tr>
+                    <tr>
+                        <td>🏛️ Kommun-ID</td>
+                        <td><code>?IDPUnit=100</code></td>
+                        <td>Vår kommun har nummer 100 i systemet</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SEKTION 3: SLUTSATS -->
+            <h2>3. Slutsats</h2>
+            
+            <div class="conclusion-box">
+                <h3>🎯 Det korta svaret</h3>
+                <p>
+                    <strong>Det är inte vårt fel!</strong> 🎉<br><br>
+                    Problemet ligger troligen hos CGI som driftar Raindance-tjänsten. 
+                    IT-avdelningen behöver kontakta dem för att ta reda på vad som hänt.
+                    Förhoppningsvis är det igång igen snart!
+                </p>
+            </div>
+
+            <!-- SEKTION 4: VAD JAG TESTADE -->
+            <h2>4. Vad jag har testat</h2>
+            
+            <ul class="troubleshoot-list">
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Vanlig webbläsare (Chrome)</strong><br>
+                        <small>Fungerade inte</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Inkognitoläge</strong><br>
+                        <small>Fungerade inte heller – så det är inte sparade cookies</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="cross">✗</span>
+                    <div>
+                        <strong>Annan webbläsare (Edge)</strong><br>
+                        <small>Samma problem – så det är inte webbläsaren</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    <div>
+                        <strong>Hypergene</strong><br>
+                        <small>Fungerar! Så min uppkoppling är OK</small>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+        <!-- Slut på kolleg-versionen -->
+
+        <!-- ===========================================
+             LÄNKSEKTION (visas i båda versionerna)
+             =========================================== -->
+        <div class="links-section">
+            <h3>🔗 Externa länkar</h3>
+            <ul>
+                <li>
+                    <strong>Raindance (CGI):</strong> 
+                    <a href="https://www.cgi.com/se/sv/raindance-affarsystem-erp" target="_blank">
+                        www.cgi.com/se/sv/raindance-affarsystem-erp
+                    </a>
+                </li>
+                <li>
+                    <strong>Hypergene:</strong> 
+                    <a href="https://www.hypergene.com/sv" target="_blank">
+                        www.hypergene.com/sv
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <!-- Slut på container -->
+
+    <!-- ===========================================
+         KNAPP FÖR ATT VÄXLA MELLAN VERSIONER
+         
+         Placerad fixed i nedre vänstra hörnet.
+         =========================================== -->
+    <div class="version-toggle">
+        <button class="toggle-btn" onclick="toggleVersion()">
+            <span id="toggleIcon">👔</span>
+            <span id="toggleText">Visa kolleg-version</span>
+        </button>
+    </div>
+
+    <!-- ===========================================
+         JAVASCRIPT FÖR INTERAKTIVITET
+         
+         Hanterar växlingen mellan IT-versionen
+         och kolleg-versionen.
+         =========================================== -->
+    <script>
+        // ==================================================
+        // VARIABEL FÖR ATT HÅLLA REDA PÅ AKTUELL VERSION
+        // 
+        // true = IT-versionen visas
+        // false = Kolleg-versionen visas
+        // ==================================================
+        let isITVersion = true;
+
+        // ==================================================
+        // FUNKTION: toggleVersion()
+        // 
+        // Beskrivning:
+        // Växlar mellan IT-versionen och kolleg-versionen
+        // genom att lägga till/ta bort CSS-klassen 'hidden'
+        // på respektive div-element.
+        // 
+        // Uppdaterar även:
+        // - Knappens text och ikon
+        // - Versionsetiketten i rubriken
+        // ==================================================
+        function toggleVersion() {
+            // Hämta referens till de två versions-divarna
+            const itVersion = document.getElementById('itVersion');
+            const colleagueVersion = document.getElementById('colleagueVersion');
+            
+            // Hämta referens till knappens element
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            const versionLabel = document.getElementById('versionLabel');
+
+            // Växla tillstånd
+            isITVersion = !isITVersion;
+
+            if (isITVersion) {
+                // Visa IT-versionen
+                // ----------------------------------------
+                // Ta bort 'hidden' från IT-versionen
+                itVersion.classList.remove('hidden');
+                // Lägg till 'hidden' på kolleg-versionen
+                colleagueVersion.classList.add('hidden');
+                
+                // Uppdatera knappen
+                toggleIcon.textContent = '👔';
+                toggleText.textContent = 'Visa kolleg-version';
+                
+                // Uppdatera etiketten i rubriken
+                versionLabel.textContent = 'IT-version';
+                versionLabel.classList.remove('version-colleague');
+                versionLabel.classList.add('version-it');
+            } else {
+                // Visa kolleg-versionen
+                // ----------------------------------------
+                // Lägg till 'hidden' på IT-versionen
+                itVersion.classList.add('hidden');
+                // Ta bort 'hidden' från kolleg-versionen
+                colleagueVersion.classList.remove('hidden');
+                
+                // Uppdatera knappen
+                toggleIcon.textContent = '☕';
+                toggleText.textContent = 'Visa IT-version';
+                
+                // Uppdatera etiketten i rubriken
+                versionLabel.textContent = 'Kolleg-version';
+                versionLabel.classList.remove('version-it');
+                versionLabel.classList.add('version-colleague');
+            }
+
+            // Scrolla till toppen för bättre användarupplevelse
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================================================
+        // TANGENTBORDSGENVÄG
+        // 
+        // Tryck på 'V' för att växla version
+        // ==================================================
+        document.addEventListener('keydown', function(event) {
+            // Kontrollera att användaren inte skriver i ett textfält
+            if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                // Om 'V' trycks, växla version
+                if (event.key === 'v' || event.key === 'V') {
+                    toggleVersion();
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
